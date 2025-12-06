@@ -343,6 +343,10 @@ export async function resetDatabase() {
 // Seed admin user if doesn't exist
 export async function seedAdminUser() {
     try {
+        // Import and run migrations to ensure tables exist
+        const { runMigrations } = await import('@/db');
+        await runMigrations();
+
         const existingAdmin = await db.select().from(users).where(eq(users.username, 'sanjay')).limit(1);
 
         if (existingAdmin.length === 0) {
@@ -358,6 +362,7 @@ export async function seedAdminUser() {
         console.error('Error seeding admin:', error);
     }
 }
+
 
 // Login action
 export async function login(username: string, password: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {

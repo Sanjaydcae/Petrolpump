@@ -10,8 +10,13 @@ const client = createClient({
 
 export const db = drizzle(client, { schema });
 
+// Track if migrations have run
+let migrationsRun = false;
+
 // Auto-migration: Create tables and add columns if they don't exist
-async function runMigrations() {
+export async function runMigrations() {
+    if (migrationsRun) return;
+
     try {
         // Create daily_sheets table
         await client.execute(`
@@ -89,11 +94,14 @@ async function runMigrations() {
             )
         `);
 
+        migrationsRun = true;
         console.log('Database migrations completed');
     } catch (error) {
         console.error('Migration error:', error);
+        throw error;
     }
 }
 
-// Run migrations on startup
-runMigrations();
+// Initialize on first import (for local development)
+runMigrations().catch(console.error);
+
