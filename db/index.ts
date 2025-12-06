@@ -1,14 +1,38 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { createClient, Client } from '@libsql/client';
 import * as schema from './schema';
 
-// Turso cloud database connection
-const client = createClient({
-    url: process.env.TURSO_DATABASE_URL || 'file:sqlite.db',
-    authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Lazy database client - only connect when needed (not at build time)
+let client: Client | null = null;
+let dbInstance: ReturnType<typeof drizzle> | null = null;
 
-export const db = drizzle(client, { schema });
+function getClient(): Client {
+    if (!client) {
+        const url = process.env.TURSO_DATABASE_URL;
+        if (!url) {
+            throw new Error('TURSO_DATABASE_URL environment variable is not set');
+        }
+        client = createClient({
+            url,
+            authToken: process.env.TURSO_AUTH_TOKEN,
+        });
+    }
+    return client;
+}
+
+export function getDb() {
+    if (!dbInstance) {
+        dbInstance = drizzle(getClient(), { schema });
+    }
+    return dbInstance;
+}
+
+// For compatibility with existing code
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+    get(_, prop) {
+        return (getDb() as any)[prop];
+    }
+});
 
 // Track if migrations have run
 let migrationsRun = false;
@@ -18,8 +42,10 @@ export async function runMigrations() {
     if (migrationsRun) return;
 
     try {
+        const c = getClient();
+
         // Create daily_sheets table
-        await client.execute(`
+        await c.execute(`
             CREATE TABLE IF NOT EXISTS daily_sheets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 date INTEGER NOT NULL,
@@ -41,7 +67,7 @@ export async function runMigrations() {
         `);
 
         // Create sales table
-        await client.execute(`
+        await c.execute(`
             CREATE TABLE IF NOT EXISTS sales (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 daily_sheet_id INTEGER REFERENCES daily_sheets(id),
@@ -59,7 +85,7 @@ export async function runMigrations() {
         `);
 
         // Create credit_sales table
-        await client.execute(`
+        await c.execute(`
             CREATE TABLE IF NOT EXISTS credit_sales (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 daily_sheet_id INTEGER REFERENCES daily_sheets(id),
@@ -71,7 +97,7 @@ export async function runMigrations() {
         `);
 
         // Create oil_lube_sales table
-        await client.execute(`
+        await c.execute(`
             CREATE TABLE IF NOT EXISTS oil_lube_sales (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 daily_sheet_id INTEGER REFERENCES daily_sheets(id),
@@ -84,7 +110,7 @@ export async function runMigrations() {
         `);
 
         // Create users table
-        await client.execute(`
+        await c.execute(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE,
@@ -101,7 +127,3 @@ export async function runMigrations() {
         throw error;
     }
 }
-
-// Initialize on first import (for local development)
-runMigrations().catch(console.error);
-
