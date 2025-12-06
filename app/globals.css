@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clean POS System - Light Theme */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: #f5f5f5;
+  color: #212529;
+  line-height: 1.5;
+}
+
+/* Utility Classes for POS */
+.pos-container {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+}
+
+.pos-header {
+  background: #ffffff;
+  border-bottom: 2px solid #dee2e6;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.pos-section {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.pos-section-header {
+  background: #e3f2fd;
+  padding: 12px 16px;
+  border-bottom: 1px solid #90caf9;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1565c0;
+}
+
+.pos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pos-table th {
+  background: #f8f9fa;
+  padding: 10px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.pos-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 14px;
+}
+
+.pos-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.pos-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: white;
+  color: #212529;
+  transition: border-color 0.15s;
+}
+
+.pos-input[type="password"] {
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.pos-input[type="date"] {
+  font-weight: 500;
+  color: #212529;
+}
+
+.pos-input[type="number"] {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.pos-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.pos-input-large {
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.pos-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.pos-value {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.pos-card {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pos-btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pos-btn-primary {
+  background: #4caf50;
+  color: white;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.pos-btn-primary:hover {
+  background: #45a049;
+  box-shadow: 0 3px 6px rgba(76, 175, 80, 0.4);
+}
+
+.pos-btn-primary:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Nozzle specific colors */
+.nozzle-petrol {
+  color: #ff9800;
+  font-weight: 700;
+}
+
+.nozzle-diesel {
+  color: #2196f3;
+  font-weight: 700;
+}
+
+/* Summary box */
+.pos-summary {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.pos-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.pos-summary-row.total {
+  border-top: 2px solid #495057;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pos-summary-label {
+  color: #495057;
+}
+
+.pos-summary-value {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Grid layouts */
+.pos-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.pos-grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.2fr;
+  gap: 20px;
+}
+
+
+@media (max-width: 1200px) {
+  .pos-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pos-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
