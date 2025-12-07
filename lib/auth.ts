@@ -43,19 +43,52 @@ export function isAuthenticated(): boolean {
     return getAuth() !== null;
 }
 
-// Permission checks
-export function canDelete(role: UserRole): boolean {
-    return role === 'admin';
+// ===== ROLE-BASED PERMISSION CHECKS =====
+// Admin: Can do everything
+// Owner: Can save, edit, approve (no master reset, no create/delete users)
+// Manager: Can only save data (no edit, delete, approve)
+
+// Check if user can save/add new data
+export function canSave(role: UserRole): boolean {
+    return true; // All roles can save new data
 }
 
+// Check if user can edit existing data
 export function canEdit(role: UserRole): boolean {
     return role === 'admin' || role === 'owner';
 }
 
-export function canAdd(role: UserRole): boolean {
-    return true; // All roles can add
+// Check if user can delete data
+export function canDelete(role: UserRole): boolean {
+    return role === 'admin'; // Only admin can delete
 }
 
+// Check if user can approve sheets
+export function canApprove(role: UserRole): boolean {
+    return role === 'admin' || role === 'owner';
+}
+
+// Check if user can manage users (create/delete users)
 export function canManageUsers(role: UserRole): boolean {
+    return role === 'admin'; // Only admin
+}
+
+// Check if user can do master reset
+export function canMasterReset(role: UserRole): boolean {
+    return role === 'admin'; // Only admin
+}
+
+// Check if user can access settings
+export function canAccessSettings(role: UserRole): boolean {
+    return role === 'admin' || role === 'owner';
+}
+
+// Check if user can edit tank readings
+export function canEditTank(role: UserRole): boolean {
+    return role === 'admin' || role === 'owner';
+}
+
+// Check if user can delete tank readings
+export function canDeleteTank(role: UserRole): boolean {
     return role === 'admin';
 }

@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { saveTankReading, getTankHistory, updateTankReading, deleteTankReading } from '@/app/actions';
 import { TANK_CAPACITIES } from '@/lib/constants';
+import { getAuth, canEditTank, canDeleteTank, UserRole } from '@/lib/auth';
 
 export default function TankPage() {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [recordedBy, setRecordedBy] = useState('');
     const [isPending, setIsPending] = useState(false);
     const [history, setHistory] = useState<any[]>([]);
+    const [userRole, setUserRole] = useState<UserRole>('manager');
 
     // Petrol tank inputs
     const [petrolDip, setPetrolDip] = useState('');
@@ -25,6 +27,8 @@ export default function TankPage() {
 
     useEffect(() => {
         loadHistory();
+        const auth = getAuth();
+        if (auth) setUserRole(auth.role);
     }, []);
 
     async function loadHistory() {
@@ -248,12 +252,19 @@ export default function TankPage() {
                                             <td style={{ textAlign: 'right' }}><span style={{ color: statusColor, fontWeight: '700' }}>{percentage}%</span></td>
                                             <td style={{ color: '#6c757d' }}>{reading.recordedBy || '-'}</td>
                                             <td style={{ textAlign: 'center' }}>
-                                                <button onClick={() => openEditModal(reading)} style={{ padding: '4px 10px', marginRight: '8px', background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#1565c0', fontWeight: '600' }}>
-                                                    Edit
-                                                </button>
-                                                <button onClick={() => handleDelete(reading.id)} style={{ padding: '4px 10px', background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#c62828', fontWeight: '600' }}>
-                                                    Delete
-                                                </button>
+                                                {canEditTank(userRole) && (
+                                                    <button onClick={() => openEditModal(reading)} style={{ padding: '4px 10px', marginRight: '8px', background: '#e3f2fd', border: '1px solid #90caf9', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#1565c0', fontWeight: '600' }}>
+                                                        Edit
+                                                    </button>
+                                                )}
+                                                {canDeleteTank(userRole) && (
+                                                    <button onClick={() => handleDelete(reading.id)} style={{ padding: '4px 10px', background: '#ffebee', border: '1px solid #ef9a9a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', color: '#c62828', fontWeight: '600' }}>
+                                                        Delete
+                                                    </button>
+                                                )}
+                                                {!canEditTank(userRole) && !canDeleteTank(userRole) && (
+                                                    <span style={{ color: '#9e9e9e', fontSize: '12px' }}>—</span>
+                                                )}
                                             </td>
                                         </tr>
                                     );

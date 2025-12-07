@@ -130,7 +130,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* TANK LEVELS - Visual Tank Gauges */}
+        {/* TANK LEVELS - Using Tank Image */}
         <div className="pos-section" style={{ marginBottom: '30px' }}>
           <div className="pos-section-header">
             Tank Fuel Levels
@@ -139,127 +139,111 @@ export default function Dashboard() {
             </Link>
           </div>
           <div style={{ padding: '30px', display: 'flex', justifyContent: 'center', gap: '60px', flexWrap: 'wrap' }}>
-            {/* Petrol Tank Visual */}
+            {/* Petrol Tank */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '16px', fontWeight: '700', color: '#e65100', marginBottom: '10px' }}>⛽ PETROL</div>
-              <div style={{ position: 'relative', width: '120px', height: '180px', margin: '0 auto' }}>
-                {/* Tank SVG */}
-                <svg viewBox="0 0 100 150" style={{ width: '100%', height: '100%' }}>
-                  {/* Tank outline */}
-                  <defs>
-                    <linearGradient id="petrolGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#ff9800', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#f57c00', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="petrolLow" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#f44336', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#d32f2f', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="petrolMed" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#ffc107', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#ff9800', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="petrolHigh" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#4caf50', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#388e3c', stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                  {/* Tank body */}
-                  <rect x="10" y="20" width="80" height="120" rx="10" fill="#f5f5f5" stroke="#bdbdbd" strokeWidth="3" />
-                  {/* Fuel level */}
-                  {tankLevels.petrol && (
-                    <rect
-                      x="13"
-                      y={20 + 117 - (117 * Math.min(tankLevels.petrol.percentage, 100) / 100)}
-                      width="74"
-                      height={117 * Math.min(tankLevels.petrol.percentage, 100) / 100}
-                      rx="7"
-                      fill={tankLevels.petrol.percentage < 20 ? 'url(#petrolLow)' : tankLevels.petrol.percentage < 50 ? 'url(#petrolMed)' : 'url(#petrolHigh)'}
-                      style={{ transition: 'all 0.5s ease' }}
-                    />
-                  )}
-                  {/* Tank cap */}
-                  <rect x="35" y="5" width="30" height="18" rx="5" fill="#757575" />
-                  {/* Level lines */}
-                  <line x1="85" y1="35" x2="95" y2="35" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="38" fontSize="8" fill="#757575">100%</text>
-                  <line x1="85" y1="75" x2="95" y2="75" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="78" fontSize="8" fill="#757575">50%</text>
-                  <line x1="85" y1="115" x2="95" y2="115" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="118" fontSize="8" fill="#757575">20%</text>
-                </svg>
+              <div style={{ fontSize: '16px', fontWeight: '700', color: '#e65100', marginBottom: '10px' }}>⛽ PETROL TANK</div>
+              <div style={{ position: 'relative', width: '300px', height: '140px' }}>
+                {/* Fuel level fill (behind image) */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '25px',
+                  left: '8px',
+                  right: '8px',
+                  height: `${tankLevels.petrol ? Math.min(tankLevels.petrol.percentage, 100) * 0.75 : 0}px`,
+                  maxHeight: '75px',
+                  background: tankLevels.petrol
+                    ? tankLevels.petrol.percentage < 20
+                      ? 'linear-gradient(0deg, rgba(211, 47, 47, 0.85) 0%, rgba(244, 67, 54, 0.7) 100%)'
+                      : tankLevels.petrol.percentage < 50
+                        ? 'linear-gradient(0deg, rgba(245, 124, 0, 0.85) 0%, rgba(255, 152, 0, 0.7) 100%)'
+                        : 'linear-gradient(0deg, rgba(56, 142, 60, 0.85) 0%, rgba(76, 175, 80, 0.7) 100%)'
+                    : 'transparent',
+                  borderRadius: '0 0 30px 30px',
+                  transition: 'height 0.5s ease'
+                }}></div>
+                {/* Tank outline image */}
+                <img src="/tank-outline.png" alt="Tank" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'relative', zIndex: 1 }} />
+                {/* Percentage badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: 'rgba(255,255,255,0.95)',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  zIndex: 2
+                }}>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: tankLevels.petrol ? (tankLevels.petrol.percentage < 20 ? '#d32f2f' : tankLevels.petrol.percentage < 50 ? '#ff9800' : '#4caf50') : '#9e9e9e' }}>
+                    {tankLevels.petrol ? `${tankLevels.petrol.percentage}%` : '--'}
+                  </div>
+                </div>
               </div>
               {tankLevels.petrol ? (
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: tankLevels.petrol.percentage < 20 ? '#d32f2f' : tankLevels.petrol.percentage < 50 ? '#ff9800' : '#4caf50' }}>
-                    {tankLevels.petrol.percentage}%
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#ff9800' }}>
+                    {tankLevels.petrol.level.toLocaleString('en-IN')} L
                   </div>
-                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#ff9800' }}>{tankLevels.petrol.level.toLocaleString('en-IN')} L</div>
-                  <div style={{ fontSize: '11px', color: '#9e9e9e' }}>of 15,000 L</div>
-                  <div style={{ fontSize: '10px', color: '#bdbdbd', marginTop: '4px' }}>Updated: {new Date(tankLevels.petrol.date).toLocaleDateString('en-IN')}</div>
+                  <div style={{ fontSize: '12px', color: '#757575' }}>of 15,000 L capacity</div>
+                  <div style={{ fontSize: '10px', color: '#9e9e9e', marginTop: '2px' }}>Updated: {new Date(tankLevels.petrol.date).toLocaleDateString('en-IN')}</div>
                 </div>
               ) : (
-                <div style={{ marginTop: '15px', color: '#bdbdbd' }}>No reading</div>
+                <div style={{ marginTop: '10px', color: '#bdbdbd' }}>No reading</div>
               )}
             </div>
 
-            {/* Diesel Tank Visual */}
+            {/* Diesel Tank */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '16px', fontWeight: '700', color: '#1565c0', marginBottom: '10px' }}>⛽ DIESEL</div>
-              <div style={{ position: 'relative', width: '120px', height: '180px', margin: '0 auto' }}>
-                {/* Tank SVG */}
-                <svg viewBox="0 0 100 150" style={{ width: '100%', height: '100%' }}>
-                  {/* Gradients */}
-                  <defs>
-                    <linearGradient id="dieselLow" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#f44336', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#d32f2f', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dieselMed" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#ffc107', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#ff9800', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dieselHigh" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#4caf50', stopOpacity: 0.8 }} />
-                      <stop offset="100%" style={{ stopColor: '#388e3c', stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                  {/* Tank body */}
-                  <rect x="10" y="20" width="80" height="120" rx="10" fill="#f5f5f5" stroke="#bdbdbd" strokeWidth="3" />
-                  {/* Fuel level */}
-                  {tankLevels.diesel && (
-                    <rect
-                      x="13"
-                      y={20 + 117 - (117 * Math.min(tankLevels.diesel.percentage, 100) / 100)}
-                      width="74"
-                      height={117 * Math.min(tankLevels.diesel.percentage, 100) / 100}
-                      rx="7"
-                      fill={tankLevels.diesel.percentage < 20 ? 'url(#dieselLow)' : tankLevels.diesel.percentage < 50 ? 'url(#dieselMed)' : 'url(#dieselHigh)'}
-                      style={{ transition: 'all 0.5s ease' }}
-                    />
-                  )}
-                  {/* Tank cap */}
-                  <rect x="35" y="5" width="30" height="18" rx="5" fill="#757575" />
-                  {/* Level lines */}
-                  <line x1="85" y1="35" x2="95" y2="35" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="38" fontSize="8" fill="#757575">100%</text>
-                  <line x1="85" y1="75" x2="95" y2="75" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="78" fontSize="8" fill="#757575">50%</text>
-                  <line x1="85" y1="115" x2="95" y2="115" stroke="#9e9e9e" strokeWidth="1" />
-                  <text x="97" y="118" fontSize="8" fill="#757575">20%</text>
-                </svg>
+              <div style={{ fontSize: '16px', fontWeight: '700', color: '#1565c0', marginBottom: '10px' }}>⛽ DIESEL TANK</div>
+              <div style={{ position: 'relative', width: '300px', height: '140px' }}>
+                {/* Fuel level fill (behind image) */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '25px',
+                  left: '8px',
+                  right: '8px',
+                  height: `${tankLevels.diesel ? Math.min(tankLevels.diesel.percentage, 100) * 0.75 : 0}px`,
+                  maxHeight: '75px',
+                  background: tankLevels.diesel
+                    ? tankLevels.diesel.percentage < 20
+                      ? 'linear-gradient(0deg, rgba(211, 47, 47, 0.85) 0%, rgba(244, 67, 54, 0.7) 100%)'
+                      : tankLevels.diesel.percentage < 50
+                        ? 'linear-gradient(0deg, rgba(245, 124, 0, 0.85) 0%, rgba(255, 152, 0, 0.7) 100%)'
+                        : 'linear-gradient(0deg, rgba(56, 142, 60, 0.85) 0%, rgba(76, 175, 80, 0.7) 100%)'
+                    : 'transparent',
+                  borderRadius: '0 0 30px 30px',
+                  transition: 'height 0.5s ease'
+                }}></div>
+                {/* Tank outline image */}
+                <img src="/tank-outline.png" alt="Tank" style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'relative', zIndex: 1 }} />
+                {/* Percentage badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background: 'rgba(255,255,255,0.95)',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  zIndex: 2
+                }}>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: tankLevels.diesel ? (tankLevels.diesel.percentage < 20 ? '#d32f2f' : tankLevels.diesel.percentage < 50 ? '#ff9800' : '#4caf50') : '#9e9e9e' }}>
+                    {tankLevels.diesel ? `${tankLevels.diesel.percentage}%` : '--'}
+                  </div>
+                </div>
               </div>
               {tankLevels.diesel ? (
-                <div style={{ marginTop: '10px' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: tankLevels.diesel.percentage < 20 ? '#d32f2f' : tankLevels.diesel.percentage < 50 ? '#ff9800' : '#4caf50' }}>
-                    {tankLevels.diesel.percentage}%
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: '#2196f3' }}>
+                    {tankLevels.diesel.level.toLocaleString('en-IN')} L
                   </div>
-                  <div style={{ fontSize: '18px', fontWeight: '600', color: '#2196f3' }}>{tankLevels.diesel.level.toLocaleString('en-IN')} L</div>
-                  <div style={{ fontSize: '11px', color: '#9e9e9e' }}>of 20,000 L</div>
-                  <div style={{ fontSize: '10px', color: '#bdbdbd', marginTop: '4px' }}>Updated: {new Date(tankLevels.diesel.date).toLocaleDateString('en-IN')}</div>
+                  <div style={{ fontSize: '12px', color: '#757575' }}>of 20,000 L capacity</div>
+                  <div style={{ fontSize: '10px', color: '#9e9e9e', marginTop: '2px' }}>Updated: {new Date(tankLevels.diesel.date).toLocaleDateString('en-IN')}</div>
                 </div>
               ) : (
-                <div style={{ marginTop: '15px', color: '#bdbdbd' }}>No reading</div>
+                <div style={{ marginTop: '10px', color: '#bdbdbd' }}>No reading</div>
               )}
             </div>
           </div>
