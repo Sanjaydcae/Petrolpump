@@ -109,29 +109,31 @@ export async function saveDailySheet(data: any) {
             );
         }
 
-        // Insert credit sales
-        if (data.creditSales.length > 0) {
+        // Insert credit sales (only valid entries with customer names)
+        const validCreditSales = data.creditSales.filter((c: any) => c.name && c.name.trim() !== '' && parseFloat(c.amount) > 0);
+        if (validCreditSales.length > 0) {
             await db.insert(creditSales).values(
-                data.creditSales.map((c: any) => ({
+                validCreditSales.map((c: any) => ({
                     dailySheetId,
                     date: date,
-                    customerName: c.name,
+                    customerName: c.name.trim(),
                     amount: parseFloat(c.amount),
-                    paymentMethod: c.paymentMethod,
+                    paymentMethod: c.paymentMethod || 'CREDIT',
                 }))
             );
         }
 
-        // Insert oil & lube sales
-        if (data.oilLubeSales.length > 0) {
+        // Insert oil & lube sales (only entries with quantity > 0)
+        const validOilLubeSales = data.oilLubeSales.filter((o: any) => parseFloat(o.quantity) > 0);
+        if (validOilLubeSales.length > 0) {
             await db.insert(oilLubeSales).values(
-                data.oilLubeSales.map((o: any) => ({
+                validOilLubeSales.map((o: any) => ({
                     dailySheetId,
                     date: date,
-                    productName: `${o.name} ${o.size}`.trim(),
+                    productName: `${o.name} ${o.size || ''}`.trim(),
                     quantity: parseFloat(o.quantity),
-                    price: o.price,
-                    total: o.total,
+                    price: o.price || 0,
+                    total: o.total || 0,
                 }))
             );
         }

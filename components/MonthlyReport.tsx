@@ -427,15 +427,15 @@ export default function MonthlyReport() {
                         <div className="pos-section-header">
                             Oil & Lube Report
                             <span style={{ float: 'right', fontWeight: '700', color: '#ff9800' }}>
-                                ₹{data.totals.oilLube.toLocaleString('en-IN')}
+                                Total: ₹{data.totals.oilLube.toLocaleString('en-IN')} | {data.oilLube.reduce((sum: number, o: any) => sum + o.quantity, 0)} items sold
                             </span>
                         </div>
                         <table className="pos-table">
                             <thead>
                                 <tr>
                                     <th>Product</th>
-                                    <th style={{ textAlign: 'center' }}>Quantity</th>
-                                    <th style={{ textAlign: 'right' }}>Price</th>
+                                    <th style={{ textAlign: 'center' }}>Qty Sold</th>
+                                    <th style={{ textAlign: 'right' }}>Unit Price</th>
                                     <th style={{ textAlign: 'right' }}>Total</th>
                                 </tr>
                             </thead>
@@ -450,8 +450,8 @@ export default function MonthlyReport() {
                                     data.oilLube.map((o: any, i: number) => (
                                         <tr key={i}>
                                             <td style={{ fontWeight: '500' }}>{o.name}</td>
-                                            <td style={{ textAlign: 'center' }}>{o.quantity}</td>
-                                            <td style={{ textAlign: 'right', color: '#6c757d' }}>₹{o.price}</td>
+                                            <td style={{ textAlign: 'center', fontWeight: '600', color: '#2196f3' }}>{o.quantity}</td>
+                                            <td style={{ textAlign: 'right', color: '#6c757d' }}>₹{o.price.toLocaleString('en-IN')}</td>
                                             <td style={{ textAlign: 'right' }}>
                                                 <span className="pos-value" style={{ color: '#ff9800' }}>₹{o.total.toLocaleString('en-IN')}</span>
                                             </td>
@@ -459,6 +459,20 @@ export default function MonthlyReport() {
                                     ))
                                 )}
                             </tbody>
+                            {data.oilLube.length > 0 && (
+                                <tfoot>
+                                    <tr style={{ background: '#fff3e0', fontWeight: '700' }}>
+                                        <td>TOTAL</td>
+                                        <td style={{ textAlign: 'center', color: '#2196f3' }}>
+                                            {data.oilLube.reduce((sum: number, o: any) => sum + o.quantity, 0)} items
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>-</td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <span style={{ color: '#ff9800', fontSize: '16px' }}>₹{data.totals.oilLube.toLocaleString('en-IN')}</span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            )}
                         </table>
                     </div>
 

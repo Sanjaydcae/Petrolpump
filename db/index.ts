@@ -9,12 +9,17 @@ let dbInstance: ReturnType<typeof drizzle> | null = null;
 function getClient(): Client {
     if (!client) {
         const url = process.env.TURSO_DATABASE_URL;
+        const authToken = process.env.TURSO_AUTH_TOKEN;
+
+        console.log('Turso URL configured:', url ? `${url.substring(0, 30)}...` : 'NOT SET');
+        console.log('Turso Auth Token:', authToken ? 'SET' : 'NOT SET');
+
         if (!url) {
             throw new Error('TURSO_DATABASE_URL environment variable is not set');
         }
         client = createClient({
             url,
-            authToken: process.env.TURSO_AUTH_TOKEN,
+            authToken,
         });
     }
     return client;

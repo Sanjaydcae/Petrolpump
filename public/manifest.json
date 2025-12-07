@@ -1,24 +1,51 @@
 {
-    "name": "Kozhanthavel Agency",
+    "name": "Kozhanthavel Agency - Petrol Pump",
     "short_name": "Petrol Pump",
-    "description": "Petrol Pump Management Software",
+    "description": "Petrol Pump Management Software for daily operations, sales tracking, and reports",
     "start_url": "/",
+    "id": "/",
     "display": "standalone",
+    "display_override": [
+        "standalone",
+        "minimal-ui"
+    ],
     "background_color": "#f5f5f5",
     "theme_color": "#2196f3",
-    "orientation": "portrait-primary",
+    "orientation": "any",
+    "categories": [
+        "business",
+        "productivity",
+        "utilities"
+    ],
+    "scope": "/",
+    "lang": "en",
+    "dir": "ltr",
     "icons": [
         {
             "src": "/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
         },
         {
             "src": "/icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
-    ]
+    ],
+    "screenshots": [],
+    "prefer_related_applications": false
 }
