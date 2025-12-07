@@ -138,6 +138,14 @@ export async function runMigrations() {
             )
         `);
 
+        // Migration: Add liters column if missing
+        try {
+            await c.execute(`ALTER TABLE tank_readings ADD COLUMN liters REAL NOT NULL DEFAULT 0`);
+            console.log('Added liters column to tank_readings');
+        } catch (e: any) {
+            // Column already exists, ignore error
+        }
+
         migrationsRun = true;
         console.log('Database migrations completed');
     } catch (error) {

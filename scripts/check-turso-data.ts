@@ -1,8 +1,8 @@
 // Check Turso database contents
 import { createClient } from '@libsql/client';
 
-const TURSO_URL = process.env.TURSO_DATABASE_URL || 'libsql://petrolpump-sanjaycae.turso.io';
-const TURSO_TOKEN = process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NjQ5OTkyNzAsImlkIjoiZWE4NjVhOTItY2E5YS00YmQ1LThmMDgtOTZjZjNhMWQxMWMxIiwicmlkIjoiMTk5N2ZkOTUtZjU0ZS00MWRjLWI3YTctOGVjOGIyZDFhZDY0In0.dQB2U9dYLwu4VB7FZ4-75FaVNqfu-Q9WCW6YIpZXYnGjwdFI1PsnrLuPMywk34Nebx5wFBtvttxqgCuyp4cpBQ';
+const TURSO_URL = process.env.TURSO_DATABASE_URL || 'libsql://petrolpump-sanjaycae.aws-ap-south-1.turso.io';
+const TURSO_TOKEN = process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NjUwMjI4NTksImlkIjoiZWE4NjVhOTItY2E5YS00YmQ1LThmMDgtOTZjZjNhMWQxMWMxIiwicmlkIjoiMTk5N2ZkOTUtZjU0ZS00MWRjLWI3YTctOGVjOGIyZDFhZDY0In0.zVigax-SmBwqAN5sKExN8ZKez2ZynaOcfGVIB2KXEDWw004Wq7oYp9i1Z-qtRPLyoqwdoWhNeTVszcNLYnjUCg';
 
 async function checkData() {
     console.log('🔍 Checking Turso cloud database...\n');
