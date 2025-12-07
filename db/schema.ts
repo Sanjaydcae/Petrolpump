@@ -74,7 +74,8 @@ export const tankReadings = sqliteTable('tank_readings', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     date: integer('date', { mode: 'timestamp' }).notNull(),
     tank: text('tank').notNull(), // 'Petrol' or 'Diesel'
-    dipReading: real('dip_reading').notNull(), // Liters in tank
+    dipReading: real('dip_reading').notNull(), // DIP stick reading (cm/mm)
+    liters: real('liters').notNull(), // Actual liters in tank
     recordedBy: text('recorded_by'),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 });

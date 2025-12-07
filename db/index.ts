@@ -132,6 +132,7 @@ export async function runMigrations() {
                 date INTEGER NOT NULL,
                 tank TEXT NOT NULL,
                 dip_reading REAL NOT NULL,
+                liters REAL NOT NULL DEFAULT 0,
                 recorded_by TEXT,
                 created_at INTEGER NOT NULL
             )

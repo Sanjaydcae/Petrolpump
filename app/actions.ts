@@ -468,7 +468,7 @@ export async function deleteUser(userId: number): Promise<{ success: boolean; er
 import { TANK_CAPACITIES } from '@/lib/constants';
 
 // Save tank DIP reading
-export async function saveTankReading(data: { date: string; tank: 'Petrol' | 'Diesel'; dipReading: number; recordedBy?: string }) {
+export async function saveTankReading(data: { date: string; tank: 'Petrol' | 'Diesel'; dipReading: number; liters: number; recordedBy?: string }) {
     try {
         const { runMigrations } = await import('@/db');
         await runMigrations();
@@ -477,6 +477,7 @@ export async function saveTankReading(data: { date: string; tank: 'Petrol' | 'Di
             date: new Date(data.date),
             tank: data.tank,
             dipReading: data.dipReading,
+            liters: data.liters,
             recordedBy: data.recordedBy || null,
             createdAt: new Date(),
         });
@@ -512,16 +513,18 @@ export async function getLatestTankReadings() {
 
         return {
             petrol: petrolReading ? {
-                level: petrolReading.dipReading,
+                dipReading: petrolReading.dipReading,
+                level: petrolReading.liters || petrolReading.dipReading, // Use liters, fallback to dipReading
                 capacity: TANK_CAPACITIES.Petrol,
-                percentage: Math.round((petrolReading.dipReading / TANK_CAPACITIES.Petrol) * 100),
+                percentage: Math.round(((petrolReading.liters || petrolReading.dipReading) / TANK_CAPACITIES.Petrol) * 100),
                 date: petrolReading.date,
                 recordedBy: petrolReading.recordedBy,
             } : null,
             diesel: dieselReading ? {
-                level: dieselReading.dipReading,
+                dipReading: dieselReading.dipReading,
+                level: dieselReading.liters || dieselReading.dipReading, // Use liters, fallback to dipReading
                 capacity: TANK_CAPACITIES.Diesel,
-                percentage: Math.round((dieselReading.dipReading / TANK_CAPACITIES.Diesel) * 100),
+                percentage: Math.round(((dieselReading.liters || dieselReading.dipReading) / TANK_CAPACITIES.Diesel) * 100),
                 date: dieselReading.date,
                 recordedBy: dieselReading.recordedBy,
             } : null,
@@ -547,5 +550,38 @@ export async function getTankHistory(limit = 20) {
     } catch (error) {
         console.error('Error fetching tank history:', error);
         return [];
+    }
+}
+
+// Update tank reading
+export async function updateTankReading(id: number, data: { dipReading: number; liters: number }) {
+    try {
+        await db.update(tankReadings)
+            .set({
+                dipReading: data.dipReading,
+                liters: data.liters,
+            })
+            .where(eq(tankReadings.id, id));
+
+        revalidatePath('/');
+        revalidatePath('/tank');
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating tank reading:', error);
+        return { success: false, error: 'Failed to update' };
+    }
+}
+
+// Delete tank reading
+export async function deleteTankReading(id: number) {
+    try {
+        await db.delete(tankReadings).where(eq(tankReadings.id, id));
+
+        revalidatePath('/');
+        revalidatePath('/tank');
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting tank reading:', error);
+        return { success: false, error: 'Failed to delete' };
     }
 }
