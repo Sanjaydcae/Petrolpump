@@ -3,7 +3,7 @@ import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 // Daily Sheet metadata
 export const dailySheets = sqliteTable('daily_sheets', {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    date: integer('date', { mode: 'timestamp' }).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     salesPerson: text('sales_person'),
     pumpId: integer('pump_id').notNull().default(1),
     // Totals
@@ -19,7 +19,7 @@ export const dailySheets = sqliteTable('daily_sheets', {
     // Approval workflow
     isApproved: integer('is_approved', { mode: 'boolean' }).notNull().default(false),
     approvedBy: text('approved_by'),
-    approvedAt: integer('approved_at', { mode: 'timestamp' }),
+    approvedAt: integer('approved_at', { mode: 'timestamp_ms' }),
 });
 
 
@@ -27,7 +27,7 @@ export const dailySheets = sqliteTable('daily_sheets', {
 export const sales = sqliteTable('sales', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
-    date: integer('date', { mode: 'timestamp' }).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     salesPerson: text('sales_person'),
     nozzle: text('nozzle').notNull(), // A1, A2, B1, B2
     product: text('product').notNull(), // Petrol, Diesel
@@ -43,7 +43,7 @@ export const sales = sqliteTable('sales', {
 export const creditSales = sqliteTable('credit_sales', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
-    date: integer('date', { mode: 'timestamp' }).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     customerName: text('customer_name').notNull(),
     amount: real('amount').notNull(),
     paymentMethod: text('payment_method').notNull(), // CARD, PAYTM, FLEAT CARD
@@ -53,7 +53,7 @@ export const creditSales = sqliteTable('credit_sales', {
 export const oilLubeSales = sqliteTable('oil_lube_sales', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
-    date: integer('date', { mode: 'timestamp' }).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     productName: text('product_name').notNull(),
     quantity: real('quantity').notNull(),
     price: real('price').notNull(),
@@ -66,18 +66,18 @@ export const users = sqliteTable('users', {
     username: text('username').notNull().unique(),
     password: text('password').notNull(), // Hashed password
     role: text('role').notNull(), // 'admin', 'owner', 'manager'
-    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 // Tank DIP Readings
 export const tankReadings = sqliteTable('tank_readings', {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    date: integer('date', { mode: 'timestamp' }).notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     tank: text('tank').notNull(), // 'Petrol' or 'Diesel'
     dipReading: real('dip_reading').notNull(), // DIP stick reading (cm/mm)
     liters: real('liters').notNull(), // Actual liters in tank
     recordedBy: text('recorded_by'),
-    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
 export type DailySheet = typeof dailySheets.$inferSelect;
