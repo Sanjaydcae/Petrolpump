@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { saveTankReading, getTankHistory, TANK_CAPACITIES } from '@/app/actions';
+import { saveTankReading, getTankHistory } from '@/app/actions';
+import { TANK_CAPACITIES } from '@/lib/constants';
 
 export default function TankPage() {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);

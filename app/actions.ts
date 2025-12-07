@@ -465,11 +465,7 @@ export async function deleteUser(userId: number): Promise<{ success: boolean; er
 
 // ===== TANK READING ACTIONS =====
 
-// Tank capacities
-export const TANK_CAPACITIES = {
-    Petrol: 15000,  // 15,000 Liters
-    Diesel: 20000,  // 20,000 Liters
-};
+import { TANK_CAPACITIES } from '@/lib/constants';
 
 // Save tank DIP reading
 export async function saveTankReading(data: { date: string; tank: 'Petrol' | 'Diesel'; dipReading: number; recordedBy?: string }) {
