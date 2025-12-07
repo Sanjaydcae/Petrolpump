@@ -66,10 +66,8 @@ export async function saveDailySheet(data: any) {
                 totalToBank: data.totals.totalToBank,
             }).where(eq(dailySheets.id, dailySheetId));
 
-            // Delete old related records to replace them
+            // Delete old nozzle sales only (credit/oil handled separately to prevent data loss)
             await db.delete(sales).where(eq(sales.dailySheetId, dailySheetId));
-            await db.delete(creditSales).where(eq(creditSales.dailySheetId, dailySheetId));
-            await db.delete(oilLubeSales).where(eq(oilLubeSales.dailySheetId, dailySheetId));
 
         } else {
             // INSERT new sheet
@@ -111,7 +109,9 @@ export async function saveDailySheet(data: any) {
 
         // Insert credit sales (only valid entries with customer names)
         const validCreditSales = data.creditSales.filter((c: any) => c.name && c.name.trim() !== '' && parseFloat(c.amount) > 0);
+        // Only delete old credit records if we have new ones to insert
         if (validCreditSales.length > 0) {
+            await db.delete(creditSales).where(eq(creditSales.dailySheetId, dailySheetId));
             await db.insert(creditSales).values(
                 validCreditSales.map((c: any) => ({
                     dailySheetId,
@@ -125,7 +125,9 @@ export async function saveDailySheet(data: any) {
 
         // Insert oil & lube sales (only entries with quantity > 0)
         const validOilLubeSales = data.oilLubeSales.filter((o: any) => parseFloat(o.quantity) > 0);
+        // Only delete old oil/lube records if we have new ones to insert
         if (validOilLubeSales.length > 0) {
+            await db.delete(oilLubeSales).where(eq(oilLubeSales.dailySheetId, dailySheetId));
             await db.insert(oilLubeSales).values(
                 validOilLubeSales.map((o: any) => ({
                     dailySheetId,
