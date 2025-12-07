@@ -125,6 +125,18 @@ export async function runMigrations() {
             )
         `);
 
+        // Create tank_readings table
+        await c.execute(`
+            CREATE TABLE IF NOT EXISTS tank_readings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date INTEGER NOT NULL,
+                tank TEXT NOT NULL,
+                dip_reading REAL NOT NULL,
+                recorded_by TEXT,
+                created_at INTEGER NOT NULL
+            )
+        `);
+
         migrationsRun = true;
         console.log('Database migrations completed');
     } catch (error) {

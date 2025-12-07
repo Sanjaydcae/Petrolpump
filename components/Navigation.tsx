@@ -28,6 +28,7 @@ export default function Navigation() {
         { name: 'Dashboard', href: '/' },
         { name: 'Daily Entry', href: '/sale' },
         { name: 'Reports', href: '/report' },
+        { name: 'Tank', href: '/tank' },
         { name: 'Settings', href: '/settings' },
     ];
 

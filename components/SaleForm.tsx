@@ -241,119 +241,128 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                     </div>
                 </div>
 
-                {/* MAIN GRID */}
-                <div className="pos-grid-3">
+                {/* MAIN LAYOUT - Vertical Stack */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    {/* PUMP SALES */}
+                    {/* PUMP SALES - Full Width */}
                     <div className="pos-section">
                         <div className="pos-section-header">
                             Pump Sales
                             <span style={{ float: 'right', fontWeight: '700', color: '#1565c0' }}>₹{totalNozzleSales.toLocaleString('en-IN')}</span>
                         </div>
-                        <table className="pos-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '60px' }}>Nozzle</th>
-                                    <th>Opening</th>
-                                    <th>Closing</th>
-                                    <th style={{ width: '80px' }}>Testing</th>
-                                    <th style={{ textAlign: 'right' }}>Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {nozzles.map((n, idx) => (
-                                    <tr key={idx}>
-                                        <td>
-                                            <span className={n.product === 'Petrol' ? 'nozzle-petrol' : 'nozzle-diesel'}>{n.nozzle}</span>
-                                            <div style={{ fontSize: '10px', color: '#6c757d' }}>{n.product}</div>
-                                        </td>
-                                        <td><input type="number" value={n.openReading} onChange={(e) => updateNozzle(idx, 'openReading', e.target.value)} className="pos-input" style={{ minWidth: '180px', fontSize: '15px' }} placeholder="0" /></td>
-                                        <td><input type="number" value={n.closeReading} onChange={(e) => updateNozzle(idx, 'closeReading', e.target.value)} className="pos-input" style={{ minWidth: '180px', fontSize: '15px' }} placeholder="0" /></td>
-                                        <td><input type="number" value={n.testing} onChange={(e) => updateNozzle(idx, 'testing', e.target.value)} className="pos-input" style={{ width: '70px' }} placeholder="0" /></td>
-                                        <td style={{ textAlign: 'right', minWidth: '130px' }}><span className="pos-value" style={{ fontSize: '15px' }}>₹{n.totalAmount.toLocaleString('en-IN')}</span></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* CREDIT & PAYMENTS */}
-                    <div>
-                        {/* CREDIT SALES */}
-                        <div className="pos-section" style={{ marginBottom: '20px' }}>
-                            <div className="pos-section-header">
-                                Credit Sales
-                                <span style={{ float: 'right', fontWeight: '700', color: '#1565c0' }}>₹{totalCreditSales.toLocaleString('en-IN')}</span>
-                            </div>
-                            <div style={{ padding: '12px' }}>
-                                {creditEntries.map((entry, idx) => (
-                                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '8px', marginBottom: '8px' }}>
-                                        <input type="text" value={entry.name} onChange={(e) => updateCreditEntry(idx, 'name', e.target.value)} className="pos-input" placeholder="Customer Name" />
-                                        <input type="number" value={entry.amount} onChange={(e) => updateCreditEntry(idx, 'amount', e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* PAYMENTS */}
-                        <div className="pos-section">
-                            <div className="pos-section-header">Digital Payments</div>
-                            <div style={{ padding: '12px' }}>
-                                <div style={{ marginBottom: '12px' }}>
-                                    <label className="pos-label">Paytm</label>
-                                    <input type="number" value={paytm} onChange={(e) => setPaytm(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
-                                </div>
-                                <div style={{ marginBottom: '12px' }}>
-                                    <label className="pos-label">Card</label>
-                                    <input type="number" value={card} onChange={(e) => setCard(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
-                                </div>
-                                <div style={{ marginBottom: '12px' }}>
-                                    <label className="pos-label">Fleet Card</label>
-                                    <input type="number" value={fleatCard} onChange={(e) => setFleatCard(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
-                                </div>
-                                <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '12px', marginTop: '12px' }}>
-                                    <label className="pos-label" style={{ color: '#d32f2f' }}>Night Cash</label>
-                                    <input type="number" value={nightCash} onChange={(e) => setNightCash(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* OIL & LUBE */}
-                    <div className="pos-section">
-                        <div className="pos-section-header">
-                            Oil & Lube Products
-                            <span style={{ float: 'right', fontWeight: '700', color: '#1565c0' }}>₹{totalOilLube.toLocaleString('en-IN')}</span>
-                        </div>
-                        <div style={{ maxHeight: '600px', overflow: 'auto' }}>
-                            <table className="pos-table">
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className="pos-table" style={{ minWidth: '500px' }}>
                                 <thead>
                                     <tr>
-                                        <th>Product</th>
-                                        <th style={{ width: '70px' }}>Size</th>
-                                        <th style={{ width: '70px', textAlign: 'center' }}>Price</th>
-                                        <th style={{ width: '70px', textAlign: 'center' }}>Qty</th>
-                                        <th style={{ width: '90px', textAlign: 'right' }}>Total</th>
+                                        <th style={{ width: '80px' }}>Nozzle</th>
+                                        <th>Opening</th>
+                                        <th>Closing</th>
+                                        <th style={{ width: '80px' }}>Testing</th>
+                                        <th style={{ width: '120px', textAlign: 'right' }}>Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {oilLubeProducts.map((p, idx) => (
+                                    {nozzles.map((n, idx) => (
                                         <tr key={idx}>
-                                            <td style={{ fontWeight: '500' }}>{p.name}</td>
-                                            <td style={{ fontSize: '12px', color: '#6c757d' }}>{p.size}</td>
-                                            <td style={{ textAlign: 'center', fontSize: '13px' }}>₹{p.price}</td>
-                                            <td style={{ padding: '4px' }}>
-                                                <input type="number" value={p.quantity} onChange={(e) => updateOilLube(idx, e.target.value)} className="pos-input" placeholder="-" style={{ textAlign: 'center', padding: '6px' }} />
+                                            <td>
+                                                <span className={n.product === 'Petrol' ? 'nozzle-petrol' : 'nozzle-diesel'}>{n.nozzle}</span>
+                                                <div style={{ fontSize: '11px', color: '#6c757d' }}>{n.product}</div>
                                             </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                <span className="pos-value" style={{ color: p.total > 0 ? '#ff9800' : '#adb5bd' }}>
-                                                    {p.total > 0 ? `₹${p.total}` : '-'}
-                                                </span>
-                                            </td>
+                                            <td><input type="number" value={n.openReading} onChange={(e) => updateNozzle(idx, 'openReading', e.target.value)} className="pos-input" style={{ width: '100%', maxWidth: '150px' }} placeholder="0" /></td>
+                                            <td><input type="number" value={n.closeReading} onChange={(e) => updateNozzle(idx, 'closeReading', e.target.value)} className="pos-input" style={{ width: '100%', maxWidth: '150px' }} placeholder="0" /></td>
+                                            <td><input type="number" value={n.testing} onChange={(e) => updateNozzle(idx, 'testing', e.target.value)} className="pos-input" style={{ width: '70px' }} placeholder="0" /></td>
+                                            <td style={{ textAlign: 'right' }}><span className="pos-value" style={{ fontSize: '14px' }}>₹{n.totalAmount.toLocaleString('en-IN')}</span></td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    {/* CREDIT, PAYMENTS & OIL-LUBE - 2 Column Grid */}
+                    <div className="pos-grid-2">
+
+                        {/* LEFT COLUMN: Credit + Payments */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            {/* CREDIT SALES */}
+                            <div className="pos-section">
+                                <div className="pos-section-header">
+                                    Credit Sales
+                                    <span style={{ float: 'right', fontWeight: '700', color: '#d32f2f' }}>₹{totalCreditSales.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div style={{ padding: '12px' }}>
+                                    {creditEntries.map((entry, idx) => (
+                                        <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                            <input type="text" value={entry.name} onChange={(e) => updateCreditEntry(idx, 'name', e.target.value)} className="pos-input" placeholder="Customer Name" style={{ flex: 1 }} />
+                                            <input type="number" value={entry.amount} onChange={(e) => updateCreditEntry(idx, 'amount', e.target.value)} className="pos-input" placeholder="₹0" style={{ width: '100px', textAlign: 'right' }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* DIGITAL PAYMENTS */}
+                            <div className="pos-section">
+                                <div className="pos-section-header">Digital Payments</div>
+                                <div style={{ padding: '12px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        <div>
+                                            <label className="pos-label">Paytm</label>
+                                            <input type="number" value={paytm} onChange={(e) => setPaytm(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
+                                        </div>
+                                        <div>
+                                            <label className="pos-label">Card</label>
+                                            <input type="number" value={card} onChange={(e) => setCard(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
+                                        </div>
+                                        <div>
+                                            <label className="pos-label">Fleet Card</label>
+                                            <input type="number" value={fleatCard} onChange={(e) => setFleatCard(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right' }} />
+                                        </div>
+                                        <div>
+                                            <label className="pos-label" style={{ color: '#ff9800' }}>Night Cash</label>
+                                            <input type="number" value={nightCash} onChange={(e) => setNightCash(e.target.value)} className="pos-input" placeholder="₹0" style={{ textAlign: 'right', borderColor: '#ff9800' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RIGHT COLUMN: Oil & Lube */}
+                        <div className="pos-section">
+                            <div className="pos-section-header">
+                                Oil & Lube Products
+                                <span style={{ float: 'right', fontWeight: '700', color: '#ff9800' }}>₹{totalOilLube.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                <table className="pos-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th style={{ width: '60px', textAlign: 'center' }}>Price</th>
+                                            <th style={{ width: '60px', textAlign: 'center' }}>Qty</th>
+                                            <th style={{ width: '80px', textAlign: 'right' }}>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {oilLubeProducts.map((p, idx) => (
+                                            <tr key={idx}>
+                                                <td>
+                                                    <div style={{ fontWeight: '500', fontSize: '13px' }}>{p.name}</div>
+                                                    <div style={{ fontSize: '11px', color: '#6c757d' }}>{p.size}</div>
+                                                </td>
+                                                <td style={{ textAlign: 'center', fontSize: '12px' }}>₹{p.price}</td>
+                                                <td style={{ padding: '4px' }}>
+                                                    <input type="number" value={p.quantity} onChange={(e) => updateOilLube(idx, e.target.value)} className="pos-input" placeholder="-" style={{ textAlign: 'center', padding: '5px', fontSize: '13px' }} />
+                                                </td>
+                                                <td style={{ textAlign: 'right' }}>
+                                                    <span style={{ color: p.total > 0 ? '#ff9800' : '#adb5bd', fontWeight: '600', fontSize: '13px' }}>
+                                                        {p.total > 0 ? `₹${p.total}` : '-'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 

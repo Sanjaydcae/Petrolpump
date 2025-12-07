@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { sales, creditSales, oilLubeSales, dailySheets, users } from '@/db/schema';
+import { sales, creditSales, oilLubeSales, dailySheets, users, tankReadings } from '@/db/schema';
 import { desc, eq, and, gte, lte } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hashPassword, verifyPassword, type AuthUser } from '@/lib/auth';
@@ -460,5 +460,96 @@ export async function deleteUser(userId: number): Promise<{ success: boolean; er
     } catch (error) {
         console.error('[DELETE USER] Error deleting user:', error);
         return { success: false, error: 'Failed to delete user' };
+    }
+}
+
+// ===== TANK READING ACTIONS =====
+
+// Tank capacities
+export const TANK_CAPACITIES = {
+    Petrol: 15000,  // 15,000 Liters
+    Diesel: 20000,  // 20,000 Liters
+};
+
+// Save tank DIP reading
+export async function saveTankReading(data: { date: string; tank: 'Petrol' | 'Diesel'; dipReading: number; recordedBy?: string }) {
+    try {
+        const { runMigrations } = await import('@/db');
+        await runMigrations();
+
+        await db.insert(tankReadings).values({
+            date: new Date(data.date),
+            tank: data.tank,
+            dipReading: data.dipReading,
+            recordedBy: data.recordedBy || null,
+            createdAt: new Date(),
+        });
+
+        revalidatePath('/');
+        revalidatePath('/tank');
+        return { success: true, message: `${data.tank} tank reading saved!` };
+    } catch (error) {
+        console.error('Error saving tank reading:', error);
+        return { success: false, error: 'Failed to save tank reading' };
+    }
+}
+
+// Get latest reading for each tank
+export async function getLatestTankReadings() {
+    try {
+        const { runMigrations } = await import('@/db');
+        await runMigrations();
+
+        // Get latest Petrol reading
+        const [petrolReading] = await db.select()
+            .from(tankReadings)
+            .where(eq(tankReadings.tank, 'Petrol'))
+            .orderBy(desc(tankReadings.date))
+            .limit(1);
+
+        // Get latest Diesel reading
+        const [dieselReading] = await db.select()
+            .from(tankReadings)
+            .where(eq(tankReadings.tank, 'Diesel'))
+            .orderBy(desc(tankReadings.date))
+            .limit(1);
+
+        return {
+            petrol: petrolReading ? {
+                level: petrolReading.dipReading,
+                capacity: TANK_CAPACITIES.Petrol,
+                percentage: Math.round((petrolReading.dipReading / TANK_CAPACITIES.Petrol) * 100),
+                date: petrolReading.date,
+                recordedBy: petrolReading.recordedBy,
+            } : null,
+            diesel: dieselReading ? {
+                level: dieselReading.dipReading,
+                capacity: TANK_CAPACITIES.Diesel,
+                percentage: Math.round((dieselReading.dipReading / TANK_CAPACITIES.Diesel) * 100),
+                date: dieselReading.date,
+                recordedBy: dieselReading.recordedBy,
+            } : null,
+        };
+    } catch (error) {
+        console.error('Error fetching tank readings:', error);
+        return { petrol: null, diesel: null };
+    }
+}
+
+// Get tank reading history
+export async function getTankHistory(limit = 20) {
+    try {
+        const { runMigrations } = await import('@/db');
+        await runMigrations();
+
+        const readings = await db.select()
+            .from(tankReadings)
+            .orderBy(desc(tankReadings.date))
+            .limit(limit);
+
+        return readings;
+    } catch (error) {
+        console.error('Error fetching tank history:', error);
+        return [];
     }
 }

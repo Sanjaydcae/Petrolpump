@@ -1,6 +1,6 @@
 'use client';
 
-import { getDailySheets, getMonthlySalesSummary } from '@/app/actions';
+import { getDailySheets, getMonthlySalesSummary, getLatestTankReadings } from '@/app/actions';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -22,6 +22,7 @@ export default function Dashboard() {
     todaySale: 0
   });
   const [recentDays, setRecentDays] = useState<DailyData[]>([]);
+  const [tankLevels, setTankLevels] = useState<{ petrol: any; diesel: any }>({ petrol: null, diesel: null });
 
   useEffect(() => {
     async function loadData() {
@@ -86,6 +87,10 @@ export default function Dashboard() {
         creditPending: 0,
         todaySale
       });
+
+      // Load tank levels
+      const tanks = await getLatestTankReadings();
+      setTankLevels(tanks);
     }
     loadData();
   }, []);
@@ -125,7 +130,86 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* RECENT ACTIVITY */}
+        {/* TANK LEVELS */}
+        <div className="pos-section" style={{ marginBottom: '30px' }}>
+          <div className="pos-section-header">
+            Tank Fuel Levels
+            <Link href="/tank" style={{ float: 'right', fontSize: '12px', color: '#1565c0', textDecoration: 'none', fontWeight: '600' }}>
+              Update Readings →
+            </Link>
+          </div>
+          <div style={{ padding: '20px' }}>
+            <div className="pos-grid-2">
+              {/* Petrol Tank */}
+              <div style={{ padding: '20px', background: '#fff8e1', borderRadius: '8px', border: '2px solid #ffcc80' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#e65100' }}>⛽ PETROL TANK</div>
+                  <div style={{ fontSize: '12px', color: '#6c757d' }}>Capacity: 15,000 L</div>
+                </div>
+                {tankLevels.petrol ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: '700', color: '#ff9800' }}>
+                        {tankLevels.petrol.level.toLocaleString('en-IN')} L
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: '700', color: tankLevels.petrol.percentage < 20 ? '#d32f2f' : tankLevels.petrol.percentage < 50 ? '#ff9800' : '#4caf50' }}>
+                        {tankLevels.petrol.percentage}%
+                      </div>
+                    </div>
+                    <div style={{ height: '16px', background: '#eeeeee', borderRadius: '8px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${Math.min(tankLevels.petrol.percentage, 100)}%`,
+                        background: tankLevels.petrol.percentage < 20 ? '#d32f2f' : tankLevels.petrol.percentage < 50 ? '#ff9800' : '#4caf50',
+                        borderRadius: '8px',
+                        transition: 'width 0.5s ease'
+                      }} />
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#6c757d', marginTop: '8px' }}>
+                      Last updated: {new Date(tankLevels.petrol.date).toLocaleDateString('en-IN')}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#adb5bd' }}>No reading recorded</div>
+                )}
+              </div>
+
+              {/* Diesel Tank */}
+              <div style={{ padding: '20px', background: '#e3f2fd', borderRadius: '8px', border: '2px solid #90caf9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#1565c0' }}>⛽ DIESEL TANK</div>
+                  <div style={{ fontSize: '12px', color: '#6c757d' }}>Capacity: 20,000 L</div>
+                </div>
+                {tankLevels.diesel ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '28px', fontWeight: '700', color: '#2196f3' }}>
+                        {tankLevels.diesel.level.toLocaleString('en-IN')} L
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: '700', color: tankLevels.diesel.percentage < 20 ? '#d32f2f' : tankLevels.diesel.percentage < 50 ? '#ff9800' : '#4caf50' }}>
+                        {tankLevels.diesel.percentage}%
+                      </div>
+                    </div>
+                    <div style={{ height: '16px', background: '#eeeeee', borderRadius: '8px', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        width: `${Math.min(tankLevels.diesel.percentage, 100)}%`,
+                        background: tankLevels.diesel.percentage < 20 ? '#d32f2f' : tankLevels.diesel.percentage < 50 ? '#ff9800' : '#4caf50',
+                        borderRadius: '8px',
+                        transition: 'width 0.5s ease'
+                      }} />
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#6c757d', marginTop: '8px' }}>
+                      Last updated: {new Date(tankLevels.diesel.date).toLocaleDateString('en-IN')}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#adb5bd' }}>No reading recorded</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="pos-section">
           <div className="pos-section-header">
             Recent Daily Sheets (Combined Pump 1 + Pump 2)
