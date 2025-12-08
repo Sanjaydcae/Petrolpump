@@ -73,8 +73,26 @@ export default function LoginPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '40px'
+                padding: '40px',
+                position: 'relative'
             }}>
+                {/* H2ONE Cleantech Logo - Top Right */}
+                <div style={{
+                    position: 'absolute',
+                    top: '24px',
+                    right: '24px',
+                    zIndex: 10
+                }}>
+                    <img
+                        src="/h2one-logo.png"
+                        alt="H2ONE Cleantech Private Limited"
+                        style={{
+                            width: '150px',
+                            height: 'auto',
+                            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                        }}
+                    />
+                </div>
                 <div style={{ maxWidth: '420px', width: '100%' }}>
                     <div style={{ marginBottom: '40px' }}>
                         <h1 style={{
