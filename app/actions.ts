@@ -587,3 +587,20 @@ export async function deleteTankReading(id: number) {
         return { success: false, error: 'Failed to delete' };
     }
 }
+
+// ===== CREDIT AUTOCOMPLETE =====
+
+// Get distinct credit customer names for autocomplete
+export async function getDistinctCreditCustomers(): Promise<string[]> {
+    try {
+        const allCredits = await db.select({ customerName: creditSales.customerName }).from(creditSales);
+
+        // Get unique customer names and sort alphabetically
+        const uniqueNames = [...new Set(allCredits.map(c => c.customerName))].filter(Boolean).sort();
+
+        return uniqueNames;
+    } catch (error) {
+        console.error('Error fetching credit customers:', error);
+        return [];
+    }
+}

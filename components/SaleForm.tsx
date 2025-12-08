@@ -1,7 +1,7 @@
 'use client';
 
-import { saveDailySheet, getDailySheetByDate } from '@/app/actions';
-import { useState, useEffect } from 'react';
+import { saveDailySheet, getDailySheetByDate, getDistinctCreditCustomers } from '@/app/actions';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type NozzleData = {
@@ -73,6 +73,22 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
     const [card, setCard] = useState('');
     const [fleatCard, setFleatCard] = useState('');
     const [nightCash, setNightCash] = useState('');
+
+    // Credit autocomplete state
+    const [allCustomerNames, setAllCustomerNames] = useState<string[]>([]);
+    const [activeAutocomplete, setActiveAutocomplete] = useState<number | null>(null);
+    const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+    const autocompleteRef = useRef<HTMLDivElement>(null);
+
+    // Fetch customer names for autocomplete on mount
+    useEffect(() => {
+        async function loadCustomerNames() {
+            const names = await getDistinctCreditCustomers();
+            console.log('Loaded customer names for autocomplete:', names);
+            setAllCustomerNames(names);
+        }
+        loadCustomerNames();
+    }, []);
 
     useEffect(() => {
         async function fetchData() {
@@ -169,7 +185,43 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         const updated = [...creditEntries];
         updated[index] = { ...updated[index], [field]: value };
         setCreditEntries(updated);
+
+        // Handle autocomplete for name field
+        if (field === 'name') {
+            console.log('Typing in credit name field:', value, 'allCustomerNames count:', allCustomerNames.length);
+            if (value.trim().length > 0) {
+                const filtered = allCustomerNames.filter(name =>
+                    name.toLowerCase().includes(value.toLowerCase())
+                );
+                console.log('Filtered suggestions:', filtered);
+                setFilteredSuggestions(filtered);
+                setActiveAutocomplete(index);
+            } else {
+                setFilteredSuggestions([]);
+                setActiveAutocomplete(null);
+            }
+        }
     };
+
+    const handleSuggestionClick = (index: number, name: string) => {
+        const updated = [...creditEntries];
+        updated[index] = { ...updated[index], name };
+        setCreditEntries(updated);
+        setActiveAutocomplete(null);
+        setFilteredSuggestions([]);
+    };
+
+    // Close autocomplete when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
+                setActiveAutocomplete(null);
+                setFilteredSuggestions([]);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const updateOilLube = (index: number, quantity: string) => {
         const updated = [...oilLubeProducts];
@@ -285,15 +337,68 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                         {/* LEFT COLUMN: Credit + Payments */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             {/* CREDIT SALES */}
-                            <div className="pos-section">
+                            <div className="pos-section" ref={autocompleteRef}>
                                 <div className="pos-section-header">
                                     Credit Sales
                                     <span style={{ float: 'right', fontWeight: '700', color: '#d32f2f' }}>₹{totalCreditSales.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div style={{ padding: '12px' }}>
                                     {creditEntries.map((entry, idx) => (
-                                        <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                            <input type="text" value={entry.name} onChange={(e) => updateCreditEntry(idx, 'name', e.target.value)} className="pos-input" placeholder="Customer Name" style={{ flex: 1 }} />
+                                        <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', position: 'relative' }}>
+                                            <div style={{ flex: 1, position: 'relative' }}>
+                                                <input
+                                                    type="text"
+                                                    value={entry.name}
+                                                    onChange={(e) => updateCreditEntry(idx, 'name', e.target.value)}
+                                                    onFocus={() => {
+                                                        if (entry.name.trim().length > 0) {
+                                                            const filtered = allCustomerNames.filter(name =>
+                                                                name.toLowerCase().includes(entry.name.toLowerCase())
+                                                            );
+                                                            setFilteredSuggestions(filtered);
+                                                            setActiveAutocomplete(idx);
+                                                        }
+                                                    }}
+                                                    className="pos-input"
+                                                    placeholder="Customer Name"
+                                                    style={{ width: '100%' }}
+                                                    autoComplete="off"
+                                                />
+                                                {/* Autocomplete Dropdown */}
+                                                {activeAutocomplete === idx && filteredSuggestions.length > 0 && (
+                                                    <div style={{
+                                                        position: 'absolute',
+                                                        top: '100%',
+                                                        left: 0,
+                                                        right: 0,
+                                                        background: '#fff',
+                                                        border: '1px solid #dee2e6',
+                                                        borderRadius: '4px',
+                                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                                        zIndex: 100,
+                                                        maxHeight: '150px',
+                                                        overflowY: 'auto'
+                                                    }}>
+                                                        {filteredSuggestions.map((name, sIdx) => (
+                                                            <div
+                                                                key={sIdx}
+                                                                onClick={() => handleSuggestionClick(idx, name)}
+                                                                style={{
+                                                                    padding: '10px 12px',
+                                                                    cursor: 'pointer',
+                                                                    borderBottom: sIdx < filteredSuggestions.length - 1 ? '1px solid #f0f0f0' : 'none',
+                                                                    fontSize: '14px',
+                                                                    transition: 'background 0.15s'
+                                                                }}
+                                                                onMouseEnter={(e) => (e.currentTarget.style.background = '#e3f2fd')}
+                                                                onMouseLeave={(e) => (e.currentTarget.style.background = '#fff')}
+                                                            >
+                                                                {name}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                             <input type="number" value={entry.amount} onChange={(e) => updateCreditEntry(idx, 'amount', e.target.value)} className="pos-input" placeholder="₹0" style={{ width: '100px', textAlign: 'right' }} />
                                         </div>
                                     ))}
