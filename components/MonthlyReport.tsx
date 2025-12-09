@@ -101,6 +101,9 @@ export default function MonthlyReport() {
 
         // Oil & Lube Report
         if (exportOptions.oilLubeReport && data.oilLube.length > 0) {
+            const totalQty = data.oilLube.reduce((sum: number, item: any) => sum + item.quantity, 0);
+            const totalAmount = data.oilLube.reduce((sum: number, item: any) => sum + item.total, 0);
+
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.text('Oil & Lube Report', 14, currentY);
@@ -115,8 +118,15 @@ export default function MonthlyReport() {
                     item.price.toLocaleString('en-IN'),
                     item.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })
                 ]),
+                foot: [[
+                    'TOTAL',
+                    totalQty.toString(),
+                    '-',
+                    totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })
+                ]],
                 theme: 'grid',
                 headStyles: { fillColor: [255, 152, 0], fontStyle: 'bold' },
+                footStyles: { fillColor: [255, 243, 224], textColor: [0, 0, 0], fontStyle: 'bold' },
                 styles: { halign: 'left' },
                 columnStyles: { 1: { halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
             });
