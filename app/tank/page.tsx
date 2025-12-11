@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { saveTankReading, getTankHistory, updateTankReading, deleteTankReading } from '@/app/actions';
 import { TANK_CAPACITIES } from '@/lib/constants';
 import { getAuth, canEditTank, canDeleteTank, UserRole } from '@/lib/auth';
+import { calculateLitersFromDip } from '@/lib/dipChart';
 
 export default function TankPage() {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -176,29 +177,85 @@ export default function TankPage() {
                             </div>
 
                             <div className="pos-grid-2">
-                                {/* Petrol Tank */}
+                                {/* Petrol Tank (15KL) */}
                                 <div style={{ padding: '20px', background: '#fff8e1', border: '2px solid #ffcc80', borderRadius: '8px' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '700', color: '#e65100', marginBottom: '16px' }}>⛽ PETROL TANK</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '700', color: '#e65100', marginBottom: '16px' }}>⛽ PETROL TANK (15KL)</div>
                                     <div style={{ marginBottom: '12px' }}>
-                                        <label className="pos-label" style={{ color: '#e65100' }}>DIP Reading (cm/mm)</label>
-                                        <input type="number" value={petrolDip} onChange={(e) => setPetrolDip(e.target.value)} className="pos-input" placeholder="Enter DIP" style={{ fontSize: '18px', textAlign: 'center' }} />
+                                        <label className="pos-label" style={{ color: '#e65100' }}>DIP Reading (cm)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={petrolDip}
+                                            onChange={(e) => {
+                                                const dip = e.target.value;
+                                                setPetrolDip(dip);
+                                                // Auto-calculate liters from dip chart
+                                                if (dip) {
+                                                    const liters = calculateLitersFromDip(parseFloat(dip), 'Petrol');
+                                                    if (liters !== null) {
+                                                        setPetrolLiters(liters.toString());
+                                                    }
+                                                } else {
+                                                    setPetrolLiters('');
+                                                }
+                                            }}
+                                            className="pos-input"
+                                            placeholder="Enter DIP (e.g. 56.2)"
+                                            style={{ fontSize: '18px', textAlign: 'center' }}
+                                        />
                                     </div>
                                     <div>
-                                        <label className="pos-label" style={{ color: '#e65100' }}>Liters in Tank</label>
-                                        <input type="number" value={petrolLiters} onChange={(e) => setPetrolLiters(e.target.value)} className="pos-input" placeholder="Enter liters" style={{ fontSize: '18px', textAlign: 'center' }} max={TANK_CAPACITIES.Petrol} />
+                                        <label className="pos-label" style={{ color: '#e65100' }}>Liters in Tank (Auto-calculated)</label>
+                                        <input
+                                            type="number"
+                                            value={petrolLiters}
+                                            onChange={(e) => setPetrolLiters(e.target.value)}
+                                            className="pos-input"
+                                            placeholder="Calculated from DIP"
+                                            style={{ fontSize: '18px', textAlign: 'center', background: petrolLiters ? '#e8f5e9' : undefined, fontWeight: petrolLiters ? '700' : undefined }}
+                                            max={TANK_CAPACITIES.Petrol}
+                                        />
+                                        {petrolLiters && <div style={{ fontSize: '11px', color: '#4caf50', marginTop: '4px', textAlign: 'center' }}>✓ Auto-calculated from BPCL Dip Chart</div>}
                                     </div>
                                 </div>
 
-                                {/* Diesel Tank */}
+                                {/* Diesel Tank (20KL) - Manual entry until chart is added */}
                                 <div style={{ padding: '20px', background: '#e3f2fd', border: '2px solid #90caf9', borderRadius: '8px' }}>
-                                    <div style={{ fontSize: '16px', fontWeight: '700', color: '#1565c0', marginBottom: '16px' }}>⛽ DIESEL TANK</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '700', color: '#1565c0', marginBottom: '16px' }}>⛽ DIESEL TANK (20KL)</div>
                                     <div style={{ marginBottom: '12px' }}>
-                                        <label className="pos-label" style={{ color: '#1565c0' }}>DIP Reading (cm/mm)</label>
-                                        <input type="number" value={dieselDip} onChange={(e) => setDieselDip(e.target.value)} className="pos-input" placeholder="Enter DIP" style={{ fontSize: '18px', textAlign: 'center' }} />
+                                        <label className="pos-label" style={{ color: '#1565c0' }}>DIP Reading (cm)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={dieselDip}
+                                            onChange={(e) => {
+                                                const dip = e.target.value;
+                                                setDieselDip(dip);
+                                                // Auto-calculate liters from dip chart (when 20KL chart is added)
+                                                if (dip) {
+                                                    const liters = calculateLitersFromDip(parseFloat(dip), 'Diesel');
+                                                    if (liters !== null) {
+                                                        setDieselLiters(liters.toString());
+                                                    }
+                                                }
+                                            }}
+                                            className="pos-input"
+                                            placeholder="Enter DIP"
+                                            style={{ fontSize: '18px', textAlign: 'center' }}
+                                        />
                                     </div>
                                     <div>
-                                        <label className="pos-label" style={{ color: '#1565c0' }}>Liters in Tank</label>
-                                        <input type="number" value={dieselLiters} onChange={(e) => setDieselLiters(e.target.value)} className="pos-input" placeholder="Enter liters" style={{ fontSize: '18px', textAlign: 'center' }} max={TANK_CAPACITIES.Diesel} />
+                                        <label className="pos-label" style={{ color: '#1565c0' }}>Liters in Tank (Manual - 20KL chart pending)</label>
+                                        <input
+                                            type="number"
+                                            value={dieselLiters}
+                                            onChange={(e) => setDieselLiters(e.target.value)}
+                                            className="pos-input"
+                                            placeholder="Enter liters manually"
+                                            style={{ fontSize: '18px', textAlign: 'center' }}
+                                            max={TANK_CAPACITIES.Diesel}
+                                        />
+                                        <div style={{ fontSize: '11px', color: '#1565c0', marginTop: '4px', textAlign: 'center' }}>⏳ 20KL Dip Chart will be added soon</div>
                                     </div>
                                 </div>
                             </div>
