@@ -318,7 +318,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                         </div>
 
                         {/* Fuel Summary Cards */}
-                        <div style={{ padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                        <div style={{ padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
                             {/* Petrol Total */}
                             <div style={{ padding: '12px', background: '#fff8e1', borderRadius: '6px', border: '2px solid #ffcc80' }}>
                                 <div style={{ fontSize: '11px', color: '#e65100', fontWeight: '600', marginBottom: '6px' }}>⛽ PETROL TOTAL</div>
@@ -331,13 +331,6 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                                 <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '600', marginBottom: '6px' }}>⛽ DIESEL TOTAL</div>
                                 <div style={{ fontSize: '20px', fontWeight: '700', color: '#2196f3', marginBottom: '2px' }}>{totalDieselLiters.toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</div>
                                 <div style={{ fontSize: '14px', fontWeight: '600', color: '#1565c0' }}>₹{totalDieselAmount.toLocaleString('en-IN')}</div>
-                            </div>
-
-                            {/* Grand Total */}
-                            <div style={{ padding: '12px', background: '#e8f5e9', borderRadius: '6px', border: '2px solid #81c784' }}>
-                                <div style={{ fontSize: '11px', color: '#2e7d32', fontWeight: '600', marginBottom: '6px' }}>💰 PUMP TOTAL</div>
-                                <div style={{ fontSize: '20px', fontWeight: '700', color: '#4caf50', marginBottom: '2px' }}>{(totalPetrolLiters + totalDieselLiters).toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</div>
-                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#2e7d32' }}>₹{totalNozzleSales.toLocaleString('en-IN')}</div>
                             </div>
                         </div>
 
