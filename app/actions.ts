@@ -604,33 +604,3 @@ export async function getDistinctCreditCustomers(): Promise<string[]> {
         return [];
     }
 }
-
-// ===== AUTHENTICATION =====
-
-export async function login(username: string, password: string) {
-    try {
-        const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
-
-        if (!user) {
-            return { success: false, error: 'Invalid credentials' };
-        }
-
-        const isValid = await verifyPassword(password, user.password);
-
-        if (!isValid) {
-            return { success: false, error: 'Invalid credentials' };
-        }
-
-        return {
-            success: true,
-            user: {
-                id: user.id,
-                username: user.username,
-                role: user.role as 'admin' | 'owner' | 'manager',
-            },
-        };
-    } catch (error) {
-        console.error('Login error:', error);
-        return { success: false, error: 'Login failed' };
-    }
-}
