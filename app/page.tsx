@@ -284,9 +284,7 @@ export default function Dashboard() {
                 <th>Date</th>
                 <th>Sales Person</th>
                 <th style={{ textAlign: 'right' }}>Petrol (L)</th>
-                <th style={{ textAlign: 'right' }}>Petrol Sale</th>
                 <th style={{ textAlign: 'right' }}>Diesel (L)</th>
-                <th style={{ textAlign: 'right' }}>Diesel Sale</th>
                 <th style={{ textAlign: 'right' }}>Total Sale</th>
                 <th style={{ textAlign: 'right' }}>Bank Deposit</th>
                 <th style={{ textAlign: 'center' }}>Status</th>
@@ -297,10 +295,8 @@ export default function Dashboard() {
                 <tr key={idx}>
                   <td style={{ fontFamily: 'Consolas, Monaco, monospace', fontSize: '13px' }}>{day.date}</td>
                   <td style={{ fontWeight: '500' }}>{day.salesPerson}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800', fontSize: '12px' }}>{day.petrolSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800' }}>₹{day.petrolAmount.toLocaleString('en-IN')}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#2196f3', fontSize: '12px' }}>{day.dieselSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#2196f3' }}>₹{day.dieselAmount.toLocaleString('en-IN')}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800' }}>{day.petrolSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#2196f3' }}>{day.dieselSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '700' }}>₹{day.totalSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '700', color: '#4caf50' }}>₹{day.totalToBank.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -310,7 +306,7 @@ export default function Dashboard() {
               ))}
               {recentDays.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>No recent activity found.</td>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>No recent activity found.</td>
                 </tr>
               )}
             </tbody>
