@@ -1,6 +1,6 @@
 'use client';
 
-import { getDailySheets, getDailySheetByDate, getMonthlySalesSummary, getLatestTankReadings } from '@/app/actions';
+import { getDailySheets, getSales, getMonthlySalesSummary, getLatestTankReadings } from '@/app/actions';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -32,6 +32,12 @@ export default function Dashboard() {
       const currentYear = today.getFullYear();
       const todayStr = today.toISOString().split('T')[0];
 
+      // Get all sales data for calculating liters
+      const allSalesData = await getMonthlySalesSummary(currentMonth + 1, currentYear);
+
+      // Fetch recent sales for date-wise breakdown
+      const recentSales = await getSales(); // Get last 100 sales
+
       // Group sheets by date and combine Pump 1 + Pump 2
       const grouped: Record<string, DailyData> = {};
       let monthlyRevenue = 0;
@@ -39,18 +45,7 @@ export default function Dashboard() {
       let monthlyDiesel = 0;
       let todaySale = 0;
 
-      // First, fetch all sheet details to get nozzle sales
-      const sheetsWithDetails = await Promise.all(
-        sheets.map(async (sheet: any) => {
-          const details = await getDailySheetByDate(
-            new Date(sheet.date).toISOString().split('T')[0],
-            sheet.pumpId
-          );
-          return { ...sheet, nozzleSales: details?.nozzleSales || [] };
-        })
-      );
-
-      sheetsWithDetails.forEach((sheet: any) => {
+      sheets.forEach((sheet: any) => {
         const dateObj = new Date(sheet.date);
         const dateStr = dateObj.toISOString().split('T')[0];
 
@@ -69,17 +64,6 @@ export default function Dashboard() {
         grouped[dateStr].totalSale += sheet.totalNozzleSales || 0;
         grouped[dateStr].totalToBank += sheet.totalToBank || 0;
 
-        // Calculate petrol and diesel liters from nozzle sales
-        if (sheet.nozzleSales && Array.isArray(sheet.nozzleSales)) {
-          sheet.nozzleSales.forEach((nozzle: any) => {
-            if (nozzle.product === 'Petrol') {
-              grouped[dateStr].petrolSale += nozzle.totalSale || 0;
-            } else if (nozzle.product === 'Diesel') {
-              grouped[dateStr].dieselSale += nozzle.totalSale || 0;
-            }
-          });
-        }
-
         // Track monthly totals
         if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
           monthlyRevenue += sheet.totalNozzleSales || 0;
@@ -91,10 +75,21 @@ export default function Dashboard() {
         }
       });
 
-      // Get petrol and diesel breakdown (in liters)
-      const productSales = await getMonthlySalesSummary(today.getMonth() + 1, today.getFullYear());
-      monthlyPetrol = productSales.petrolLiters;
-      monthlyDiesel = productSales.dieselLiters;
+      // Calculate petrol and diesel liters per date from sales data
+      recentSales.forEach((sale: any) => {
+        const dateStr = new Date(sale.date).toISOString().split('T')[0];
+        if (grouped[dateStr]) {
+          if (sale.product === 'Petrol') {
+            grouped[dateStr].petrolSale += sale.totalSale || 0;
+          } else if (sale.product === 'Diesel') {
+            grouped[dateStr].dieselSale += sale.totalSale || 0;
+          }
+        }
+      });
+
+      // Get monthly petrol and diesel
+      monthlyPetrol = allSalesData.petrolLiters;
+      monthlyDiesel = allSalesData.dieselLiters;
 
       // Sort by date descending and take first 5
       const sortedDays = Object.values(grouped)

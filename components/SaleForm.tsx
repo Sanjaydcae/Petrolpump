@@ -235,6 +235,15 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         setOilLubeProducts(updated);
     };
 
+    // Calculate petrol and diesel totals
+    const petrolNozzles = nozzles.filter(n => n.product === 'Petrol');
+    const dieselNozzles = nozzles.filter(n => n.product === 'Diesel');
+
+    const totalPetrolLiters = petrolNozzles.reduce((sum, n) => sum + n.totalSale, 0);
+    const totalPetrolAmount = petrolNozzles.reduce((sum, n) => sum + n.totalAmount, 0);
+    const totalDieselLiters = dieselNozzles.reduce((sum, n) => sum + n.totalSale, 0);
+    const totalDieselAmount = dieselNozzles.reduce((sum, n) => sum + n.totalAmount, 0);
+
     const totalNozzleSales = nozzles.reduce((sum, n) => sum + n.totalAmount, 0);
     const totalCreditSales = creditEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
     const totalOilLube = oilLubeProducts.reduce((sum, p) => sum + p.total, 0);
@@ -307,6 +316,31 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                             Pump Sales
                             <span style={{ float: 'right', fontWeight: '700', color: '#1565c0' }}>₹{totalNozzleSales.toLocaleString('en-IN')}</span>
                         </div>
+
+                        {/* Fuel Summary Cards */}
+                        <div style={{ padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', background: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
+                            {/* Petrol Total */}
+                            <div style={{ padding: '12px', background: '#fff8e1', borderRadius: '6px', border: '2px solid #ffcc80' }}>
+                                <div style={{ fontSize: '11px', color: '#e65100', fontWeight: '600', marginBottom: '6px' }}>⛽ PETROL TOTAL</div>
+                                <div style={{ fontSize: '20px', fontWeight: '700', color: '#ff9800', marginBottom: '2px' }}>{totalPetrolLiters.toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</div>
+                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#e65100' }}>₹{totalPetrolAmount.toLocaleString('en-IN')}</div>
+                            </div>
+
+                            {/* Diesel Total */}
+                            <div style={{ padding: '12px', background: '#e3f2fd', borderRadius: '6px', border: '2px solid #90caf9' }}>
+                                <div style={{ fontSize: '11px', color: '#1565c0', fontWeight: '600', marginBottom: '6px' }}>⛽ DIESEL TOTAL</div>
+                                <div style={{ fontSize: '20px', fontWeight: '700', color: '#2196f3', marginBottom: '2px' }}>{totalDieselLiters.toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</div>
+                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1565c0' }}>₹{totalDieselAmount.toLocaleString('en-IN')}</div>
+                            </div>
+
+                            {/* Grand Total */}
+                            <div style={{ padding: '12px', background: '#e8f5e9', borderRadius: '6px', border: '2px solid #81c784' }}>
+                                <div style={{ fontSize: '11px', color: '#2e7d32', fontWeight: '600', marginBottom: '6px' }}>💰 PUMP TOTAL</div>
+                                <div style={{ fontSize: '20px', fontWeight: '700', color: '#4caf50', marginBottom: '2px' }}>{(totalPetrolLiters + totalDieselLiters).toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</div>
+                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#2e7d32' }}>₹{totalNozzleSales.toLocaleString('en-IN')}</div>
+                            </div>
+                        </div>
+
                         <div style={{ overflowX: 'auto' }}>
                             <table className="pos-table" style={{ minWidth: '600px' }}>
                                 <thead>
