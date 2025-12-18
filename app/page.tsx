@@ -1,6 +1,6 @@
 'use client';
 
-import { getDailySheets, getMonthlySalesSummary, getLatestTankReadings } from '@/app/actions';
+import { getDailySheets, getDailySheetByDate, getMonthlySalesSummary, getLatestTankReadings } from '@/app/actions';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -39,7 +39,18 @@ export default function Dashboard() {
       let monthlyDiesel = 0;
       let todaySale = 0;
 
-      sheets.forEach((sheet: any) => {
+      // First, fetch all sheet details to get nozzle sales
+      const sheetsWithDetails = await Promise.all(
+        sheets.map(async (sheet: any) => {
+          const details = await getDailySheetByDate(
+            new Date(sheet.date).toISOString().split('T')[0],
+            sheet.pumpId
+          );
+          return { ...sheet, nozzleSales: details?.nozzleSales || [] };
+        })
+      );
+
+      sheetsWithDetails.forEach((sheet: any) => {
         const dateObj = new Date(sheet.date);
         const dateStr = dateObj.toISOString().split('T')[0];
 
@@ -57,6 +68,17 @@ export default function Dashboard() {
         // Add totals from both pumps
         grouped[dateStr].totalSale += sheet.totalNozzleSales || 0;
         grouped[dateStr].totalToBank += sheet.totalToBank || 0;
+
+        // Calculate petrol and diesel liters from nozzle sales
+        if (sheet.nozzleSales && Array.isArray(sheet.nozzleSales)) {
+          sheet.nozzleSales.forEach((nozzle: any) => {
+            if (nozzle.product === 'Petrol') {
+              grouped[dateStr].petrolSale += nozzle.totalSale || 0;
+            } else if (nozzle.product === 'Diesel') {
+              grouped[dateStr].dieselSale += nozzle.totalSale || 0;
+            }
+          });
+        }
 
         // Track monthly totals
         if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
@@ -260,7 +282,9 @@ export default function Dashboard() {
               <tr>
                 <th>Date</th>
                 <th>Sales Person</th>
-                <th style={{ textAlign: 'right' }}>Total Sale (P1+P2)</th>
+                <th style={{ textAlign: 'right' }}>Petrol (L)</th>
+                <th style={{ textAlign: 'right' }}>Diesel (L)</th>
+                <th style={{ textAlign: 'right' }}>Total Sale (₹)</th>
                 <th style={{ textAlign: 'right' }}>Bank Deposit</th>
                 <th style={{ textAlign: 'center' }}>Status</th>
               </tr>
@@ -270,6 +294,8 @@ export default function Dashboard() {
                 <tr key={idx}>
                   <td style={{ fontFamily: 'Consolas, Monaco, monospace', fontSize: '13px' }}>{day.date}</td>
                   <td style={{ fontWeight: '500' }}>{day.salesPerson}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800' }}>{day.petrolSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#2196f3' }}>{day.dieselSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600' }}>₹{day.totalSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '700', color: '#4caf50' }}>₹{day.totalToBank.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -279,7 +305,7 @@ export default function Dashboard() {
               ))}
               {recentDays.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>No recent activity found.</td>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>No recent activity found.</td>
                 </tr>
               )}
             </tbody>

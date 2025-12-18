@@ -51,6 +51,11 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         { name: '', amount: '' },
         { name: '', amount: '' },
         { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
     ]);
 
     const [oilLubeProducts, setOilLubeProducts] = useState<OilLubeProduct[]>([
@@ -110,7 +115,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                 }
                 if (data.creditSales) {
                     const loadedCredits = data.creditSales.map((c: any) => ({ name: c.customerName, amount: c.amount.toString() }));
-                    while (loadedCredits.length < 5) loadedCredits.push({ name: '', amount: '' });
+                    while (loadedCredits.length < 10) loadedCredits.push({ name: '', amount: '' });
                     setCreditEntries(loadedCredits);
                 }
                 if (data.oilLubeSales) {
@@ -154,7 +159,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                     setNozzles(prev => prev.map(n => ({ ...n, openReading: '', closeReading: '', testing: '', totalSale: 0, totalAmount: 0 })));
                 }
 
-                setCreditEntries(Array(5).fill(null).map(() => ({ name: '', amount: '' })));
+                setCreditEntries(Array(10).fill(null).map(() => ({ name: '', amount: '' })));
                 setOilLubeProducts(prev => prev.map(p => ({ ...p, quantity: '', total: 0 })));
                 setPaytm(''); setCard(''); setFleatCard(''); setNightCash('');
             }
@@ -303,13 +308,14 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                             <span style={{ float: 'right', fontWeight: '700', color: '#1565c0' }}>₹{totalNozzleSales.toLocaleString('en-IN')}</span>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
-                            <table className="pos-table" style={{ minWidth: '500px' }}>
+                            <table className="pos-table" style={{ minWidth: '600px' }}>
                                 <thead>
                                     <tr>
                                         <th style={{ width: '80px' }}>Nozzle</th>
                                         <th>Opening</th>
                                         <th>Closing</th>
                                         <th style={{ width: '80px' }}>Testing</th>
+                                        <th style={{ width: '100px', textAlign: 'right' }}>Liters</th>
                                         <th style={{ width: '120px', textAlign: 'right' }}>Amount</th>
                                     </tr>
                                 </thead>
@@ -323,6 +329,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                                             <td><input type="number" value={n.openReading} onChange={(e) => updateNozzle(idx, 'openReading', e.target.value)} className="pos-input" style={{ width: '100%', maxWidth: '150px' }} placeholder="0" /></td>
                                             <td><input type="number" value={n.closeReading} onChange={(e) => updateNozzle(idx, 'closeReading', e.target.value)} className="pos-input" style={{ width: '100%', maxWidth: '150px' }} placeholder="0" /></td>
                                             <td><input type="number" value={n.testing} onChange={(e) => updateNozzle(idx, 'testing', e.target.value)} className="pos-input" style={{ width: '70px' }} placeholder="0" /></td>
+                                            <td style={{ textAlign: 'right' }}><span className="pos-value" style={{ fontSize: '14px', color: n.product === 'Petrol' ? '#ff9800' : '#2196f3', fontWeight: '600' }}>{n.totalSale.toLocaleString('en-IN', { minimumFractionDigits: 2 })} L</span></td>
                                             <td style={{ textAlign: 'right' }}><span className="pos-value" style={{ fontSize: '14px' }}>₹{n.totalAmount.toLocaleString('en-IN')}</span></td>
                                         </tr>
                                     ))}
