@@ -471,7 +471,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                                 Oil & Lube Products
                                 <span style={{ float: 'right', fontWeight: '700', color: '#ff9800' }}>₹{totalOilLube.toLocaleString('en-IN')}</span>
                             </div>
-                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                            <div>
                                 <table className="pos-table">
                                     <thead>
                                         <tr>
