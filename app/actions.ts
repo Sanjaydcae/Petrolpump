@@ -140,29 +140,32 @@ export async function saveDailySheet(data: any) {
             );
         }
 
-        // Insert expense sales into the standalone expenses table
-        if (data.expenseSales && data.expenseSales.length > 0) {
-            const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
-            for (const expense of validExpenses) {
-                await db.insert(expenses).values({
-                    name: expense.name.trim(),
-                    amount: parseFloat(expense.amount),
-                    date: date,
-                    createdAt: new Date(),
-                });
+        // Only add to standalone tables for NEW daily sheets (not updates) to prevent duplicates
+        if (!existing) {
+            // Insert expense sales into the standalone expenses table
+            if (data.expenseSales && data.expenseSales.length > 0) {
+                const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
+                for (const expense of validExpenses) {
+                    await db.insert(expenses).values({
+                        name: expense.name.trim(),
+                        amount: parseFloat(expense.amount),
+                        date: date,
+                        createdAt: new Date(),
+                    });
+                }
             }
-        }
 
-        // Also insert credit sales into the standalone credits table (for Credit tab)
-        if (validCreditSales.length > 0) {
-            for (const credit of validCreditSales) {
-                await db.insert(credits).values({
-                    name: credit.name.trim(),
-                    amount: parseFloat(credit.amount),
-                    status: 'pending', // Credits from daily entry start as pending
-                    receivedDate: null,
-                    createdAt: new Date(),
-                });
+            // Also insert credit sales into the standalone credits table (for Credit tab)
+            if (validCreditSales.length > 0) {
+                for (const credit of validCreditSales) {
+                    await db.insert(credits).values({
+                        name: credit.name.trim(),
+                        amount: parseFloat(credit.amount),
+                        status: 'pending', // Credits from daily entry start as pending
+                        receivedDate: null,
+                        createdAt: new Date(),
+                    });
+                }
             }
         }
 
