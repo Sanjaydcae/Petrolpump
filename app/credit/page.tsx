@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { addCredit, getCredits, updateCreditStatus, deleteCredit } from '@/app/actions';
+import { getCredits, updateCreditStatus, deleteCredit } from '@/app/actions';
 
 type Credit = {
     id: number;
@@ -14,12 +14,9 @@ type Credit = {
 
 export default function CreditPage() {
     const [credits, setCredits] = useState<Credit[]>([]);
-    const [name, setName] = useState('');
-    const [amount, setAmount] = useState('');
-    const [status, setStatus] = useState<'received' | 'pending'>('pending');
-    const [receivedDate, setReceivedDate] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isPending, setIsPending] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editDate, setEditDate] = useState('');
 
     useEffect(() => {
         loadCredits();
@@ -32,33 +29,22 @@ export default function CreditPage() {
         setIsLoading(false);
     }
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (!name.trim() || !amount) return;
-
-        setIsPending(true);
-        const result = await addCredit({
-            name,
-            amount: parseFloat(amount),
-            status,
-            receivedDate: status === 'received' ? receivedDate : undefined,
-        });
-
-        if (result.success) {
-            setName('');
-            setAmount('');
-            setStatus('pending');
-            setReceivedDate('');
-            loadCredits();
+    async function handleStatusChange(id: number, newStatus: 'received' | 'pending') {
+        if (newStatus === 'received') {
+            // Show date picker for received date
+            setEditingId(id);
+            setEditDate(new Date().toISOString().split('T')[0]);
         } else {
-            alert(result.error || 'Failed to add credit');
+            // Set to pending, clear received date
+            await updateCreditStatus(id, newStatus, undefined);
+            loadCredits();
         }
-        setIsPending(false);
     }
 
-    async function handleStatusChange(id: number, newStatus: 'received' | 'pending', credit: Credit) {
-        const dateToUse = newStatus === 'received' ? new Date().toISOString().split('T')[0] : undefined;
-        await updateCreditStatus(id, newStatus, dateToUse);
+    async function handleDateConfirm(id: number) {
+        await updateCreditStatus(id, 'received', editDate);
+        setEditingId(null);
+        setEditDate('');
         loadCredits();
     }
 
@@ -80,7 +66,7 @@ export default function CreditPage() {
                 {/* Header */}
                 <div style={{ marginBottom: '24px' }}>
                     <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>Credit Management</h1>
-                    <p style={{ color: '#6c757d' }}>Track and manage all credits</p>
+                    <p style={{ color: '#6c757d' }}>Credits added from Daily Entry are shown here. Update status when received.</p>
                 </div>
 
                 {/* Summary Cards */}
@@ -99,75 +85,6 @@ export default function CreditPage() {
                     </div>
                 </div>
 
-                {/* Add Credit Form */}
-                <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Add New Credit</h2>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                        <div style={{ flex: '1 1 200px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Credit Name</label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter credit name"
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                required
-                            />
-                        </div>
-                        <div style={{ flex: '0 1 150px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Amount (₹)</label>
-                            <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="0"
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                required
-                            />
-                        </div>
-                        <div style={{ flex: '0 1 150px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Status</label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value as 'received' | 'pending')}
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px', background: '#fff' }}
-                            >
-                                <option value="pending">Pending</option>
-                                <option value="received">Received</option>
-                            </select>
-                        </div>
-                        {status === 'received' && (
-                            <div style={{ flex: '0 1 180px' }}>
-                                <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Received Date</label>
-                                <input
-                                    type="date"
-                                    value={receivedDate}
-                                    onChange={(e) => setReceivedDate(e.target.value)}
-                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                    required
-                                />
-                            </div>
-                        )}
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            style={{
-                                padding: '10px 24px',
-                                background: '#2196f3',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                opacity: isPending ? 0.7 : 1,
-                            }}
-                        >
-                            {isPending ? 'Adding...' : 'Add Credit'}
-                        </button>
-                    </form>
-                </div>
-
                 {/* Credits List */}
                 <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #dee2e6', overflow: 'hidden' }}>
                     <div style={{ padding: '16px 24px', borderBottom: '1px solid #dee2e6', background: '#f8f9fa' }}>
@@ -176,7 +93,7 @@ export default function CreditPage() {
                     {isLoading ? (
                         <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>Loading...</div>
                     ) : credits.length === 0 ? (
-                        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>No credits found. Add your first credit above.</div>
+                        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>No credits found. Add credits from the Daily Entry tab.</div>
                     ) : (
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
@@ -194,26 +111,49 @@ export default function CreditPage() {
                                         <td style={{ padding: '14px 16px', fontWeight: '500' }}>{credit.name}</td>
                                         <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#2196f3' }}>₹{credit.amount.toLocaleString('en-IN')}</td>
                                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                                            <select
-                                                value={credit.status}
-                                                onChange={(e) => handleStatusChange(credit.id, e.target.value as 'received' | 'pending', credit)}
-                                                style={{
-                                                    padding: '6px 12px',
-                                                    borderRadius: '20px',
-                                                    border: 'none',
-                                                    fontSize: '12px',
-                                                    fontWeight: '600',
-                                                    background: credit.status === 'received' ? '#e8f5e9' : '#fff3e0',
-                                                    color: credit.status === 'received' ? '#2e7d32' : '#e65100',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                <option value="pending">Pending</option>
-                                                <option value="received">Received</option>
-                                            </select>
+                                            {editingId === credit.id ? (
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                                                    <input
+                                                        type="date"
+                                                        value={editDate}
+                                                        onChange={(e) => setEditDate(e.target.value)}
+                                                        style={{ padding: '6px 8px', borderRadius: '4px', border: '1px solid #dee2e6', fontSize: '12px' }}
+                                                    />
+                                                    <button
+                                                        onClick={() => handleDateConfirm(credit.id)}
+                                                        style={{ padding: '6px 12px', background: '#4caf50', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                                                    >
+                                                        ✓
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingId(null)}
+                                                        style={{ padding: '6px 12px', background: '#f44336', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <select
+                                                    value={credit.status}
+                                                    onChange={(e) => handleStatusChange(credit.id, e.target.value as 'received' | 'pending')}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        borderRadius: '20px',
+                                                        border: 'none',
+                                                        fontSize: '12px',
+                                                        fontWeight: '600',
+                                                        background: credit.status === 'received' ? '#e8f5e9' : '#fff3e0',
+                                                        color: credit.status === 'received' ? '#2e7d32' : '#e65100',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="received">Received</option>
+                                                </select>
+                                            )}
                                         </td>
-                                        <td style={{ padding: '14px 16px', textAlign: 'center', color: '#6c757d' }}>
-                                            {credit.receivedDate ? new Date(credit.receivedDate).toLocaleDateString('en-IN') : '-'}
+                                        <td style={{ padding: '14px 16px', textAlign: 'center', color: credit.receivedDate ? '#2e7d32' : '#6c757d', fontWeight: credit.receivedDate ? '600' : '400' }}>
+                                            {credit.receivedDate ? new Date(credit.receivedDate).toLocaleDateString('en-IN') : 'Not received'}
                                         </td>
                                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                                             <button

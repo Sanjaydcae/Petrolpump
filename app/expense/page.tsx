@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { addExpense, getExpenses, deleteExpense } from '@/app/actions';
+import { getExpenses, deleteExpense } from '@/app/actions';
 
 type Expense = {
     id: number;
@@ -13,11 +13,7 @@ type Expense = {
 
 export default function ExpensePage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
-    const [name, setName] = useState('');
-    const [amount, setAmount] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isPending, setIsPending] = useState(false);
 
     // Filter state
     const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1);
@@ -32,28 +28,6 @@ export default function ExpensePage() {
         const data = await getExpenses();
         setExpenses(data as Expense[]);
         setIsLoading(false);
-    }
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (!name.trim() || !amount) return;
-
-        setIsPending(true);
-        const result = await addExpense({
-            name,
-            amount: parseFloat(amount),
-            date,
-        });
-
-        if (result.success) {
-            setName('');
-            setAmount('');
-            setDate(new Date().toISOString().split('T')[0]);
-            loadExpenses();
-        } else {
-            alert(result.error || 'Failed to add expense');
-        }
-        setIsPending(false);
     }
 
     async function handleDelete(id: number) {
@@ -94,7 +68,7 @@ export default function ExpensePage() {
                 {/* Header */}
                 <div style={{ marginBottom: '24px' }}>
                     <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>Expense Management</h1>
-                    <p style={{ color: '#6c757d' }}>Track monthly pump expenses</p>
+                    <p style={{ color: '#6c757d' }}>Expenses added from Daily Entry are shown here.</p>
                 </div>
 
                 {/* Summary Cards */}
@@ -109,62 +83,6 @@ export default function ExpensePage() {
                         </div>
                         <div style={{ fontSize: '24px', fontWeight: '700', color: '#d32f2f' }}>₹{monthlyTotal.toLocaleString('en-IN')}</div>
                     </div>
-                </div>
-
-                {/* Add Expense Form */}
-                <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Add New Expense</h2>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                        <div style={{ flex: '1 1 250px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Expense Name</label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter expense name"
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                required
-                            />
-                        </div>
-                        <div style={{ flex: '0 1 150px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Amount (₹)</label>
-                            <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="0"
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                required
-                            />
-                        </div>
-                        <div style={{ flex: '0 1 180px' }}>
-                            <label style={{ display: 'block', fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>Date</label>
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #dee2e6', fontSize: '14px' }}
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            style={{
-                                padding: '10px 24px',
-                                background: '#d32f2f',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                opacity: isPending ? 0.7 : 1,
-                            }}
-                        >
-                            {isPending ? 'Adding...' : 'Add Expense'}
-                        </button>
-                    </form>
                 </div>
 
                 {/* Filter */}
@@ -200,7 +118,7 @@ export default function ExpensePage() {
                     {isLoading ? (
                         <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>Loading...</div>
                     ) : filteredExpenses.length === 0 ? (
-                        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>No expenses found for this month.</div>
+                        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>No expenses found for this month. Add expenses from the Daily Entry tab.</div>
                     ) : (
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
