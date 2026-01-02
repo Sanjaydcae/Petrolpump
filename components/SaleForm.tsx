@@ -271,7 +271,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
     const totalCardPaytm = (parseFloat(paytm) || 0) + (parseFloat(card) || 0) + (parseFloat(fleatCard) || 0);
     const totalNightCash = parseFloat(nightCash) || 0;
     const grandTotal = totalNozzleSales + totalOilLube;
-    const totalToBank = grandTotal - (totalCardPaytm + totalCreditSales + totalNightCash);
+    const totalToBank = grandTotal - (totalCardPaytm + totalCreditSales + totalExpenses + totalNightCash);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -580,6 +580,10 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                             <div className="pos-summary-row">
                                 <span className="pos-summary-label">Credit Sales:</span>
                                 <span className="pos-summary-value" style={{ color: '#d32f2f' }}>- ₹{totalCreditSales.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div className="pos-summary-row">
+                                <span className="pos-summary-label">Expenses:</span>
+                                <span className="pos-summary-value" style={{ color: '#ff5722' }}>- ₹{totalExpenses.toLocaleString('en-IN')}</span>
                             </div>
                             <div className="pos-summary-row">
                                 <span className="pos-summary-label">Digital Payments:</span>
