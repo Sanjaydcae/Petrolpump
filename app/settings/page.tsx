@@ -1,6 +1,6 @@
 'use client';
 
-import { resetDatabase, getUsers, createUser, deleteUser } from '@/app/actions';
+import { resetDatabase, getUsers, createUser, deleteUser, clearAllCredits, clearAllExpenses } from '@/app/actions';
 import { useState, useEffect } from 'react';
 import { getAuth, canManageUsers } from '@/lib/auth';
 
@@ -226,6 +226,46 @@ export default function SettingsPage() {
                         </table>
                     </div>
                 )}
+
+                {/* CLEAR CREDITS/EXPENSES */}
+                <div className="pos-card" style={{ marginBottom: '30px', borderLeft: '4px solid #ff9800' }}>
+                    <h2 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: '#e65100' }}>Clear Credits & Expenses</h2>
+                    <p style={{ fontSize: '14px', color: '#6c757d', marginBottom: '20px' }}>
+                        Use these buttons to clear duplicate data from Credit and Expense tabs. After clearing, re-save your daily sheets to repopulate the data.
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={async () => {
+                                if (!confirm('Are you sure you want to delete ALL credits? This cannot be undone!')) return;
+                                const result = await clearAllCredits();
+                                alert(result.success ? 'All credits cleared!' : (result.error || 'Failed'));
+                            }}
+                            className="pos-btn"
+                            style={{
+                                background: '#ffebee',
+                                color: '#d32f2f',
+                                border: '2px solid #d32f2f',
+                            }}
+                        >
+                            CLEAR ALL CREDITS
+                        </button>
+                        <button
+                            onClick={async () => {
+                                if (!confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')) return;
+                                const result = await clearAllExpenses();
+                                alert(result.success ? 'All expenses cleared!' : (result.error || 'Failed'));
+                            }}
+                            className="pos-btn"
+                            style={{
+                                background: '#fff3e0',
+                                color: '#e65100',
+                                border: '2px solid #ff9800',
+                            }}
+                        >
+                            CLEAR ALL EXPENSES
+                        </button>
+                    </div>
+                </div>
 
                 {/* SYSTEM INFO */}
                 <div className="pos-card" style={{ marginBottom: '30px' }}>

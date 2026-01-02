@@ -91,6 +91,7 @@ export default function CreditPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ background: '#f8f9fa' }}>
+                                    <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>DATE</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>NAME</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>AMOUNT</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>STATUS</th>
@@ -100,6 +101,9 @@ export default function CreditPage() {
                             <tbody>
                                 {credits.map((credit) => (
                                     <tr key={credit.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                                        <td style={{ padding: '14px 16px', color: '#6c757d' }}>
+                                            {new Date(credit.createdAt).toLocaleDateString('en-IN')}
+                                        </td>
                                         <td style={{ padding: '14px 16px', fontWeight: '500' }}>{credit.name}</td>
                                         <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#2196f3' }}>₹{credit.amount.toLocaleString('en-IN')}</td>
                                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>

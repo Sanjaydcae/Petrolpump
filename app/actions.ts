@@ -764,3 +764,27 @@ export async function deleteExpense(id: number) {
         return { success: false, error: 'Failed to delete expense' };
     }
 }
+
+// Clear all credits (for cleanup/reset)
+export async function clearAllCredits() {
+    try {
+        await db.delete(credits);
+        revalidatePath('/credit');
+        return { success: true, message: 'All credits cleared' };
+    } catch (error) {
+        console.error('Error clearing credits:', error);
+        return { success: false, error: 'Failed to clear credits' };
+    }
+}
+
+// Clear all expenses (for cleanup/reset)
+export async function clearAllExpenses() {
+    try {
+        await db.delete(expenses);
+        revalidatePath('/expense');
+        return { success: true, message: 'All expenses cleared' };
+    } catch (error) {
+        console.error('Error clearing expenses:', error);
+        return { success: false, error: 'Failed to clear expenses' };
+    }
+}
