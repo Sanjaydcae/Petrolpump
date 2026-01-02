@@ -83,6 +83,7 @@ export const tankReadings = sqliteTable('tank_readings', {
 // Credits table (standalone, separate from daily sales)
 export const credits = sqliteTable('credits', {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
     name: text('name').notNull(),
     amount: real('amount').notNull(),
     status: text('status').notNull().default('pending'), // 'received' or 'pending'
@@ -93,6 +94,7 @@ export const credits = sqliteTable('credits', {
 // Expenses table (for monthly expense tracking - standalone)
 export const expenses = sqliteTable('expenses', {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
     name: text('name').notNull(),
     amount: real('amount').notNull(),
     date: integer('date', { mode: 'timestamp_ms' }).notNull(),

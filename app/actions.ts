@@ -155,22 +155,14 @@ export async function saveDailySheet(data: any) {
             );
         }
 
-        // Always sync to standalone tables (delete old entries for this date first to prevent duplicates)
-        // Delete existing entries for this date from standalone tables
-        const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        // Sync expenses to standalone expenses table
-        await db.delete(expenses).where(and(
-            gte(expenses.date, startOfDay),
-            lte(expenses.date, endOfDay)
-        ));
+        // Always sync to standalone tables (delete old entries for THIS daily sheet first to prevent duplicates)
+        // Sync expenses to standalone expenses table (per pump via dailySheetId)
+        await db.delete(expenses).where(eq(expenses.dailySheetId, dailySheetId));
         if (data.expenseSales && data.expenseSales.length > 0) {
             const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
             for (const expense of validExpenses) {
                 await db.insert(expenses).values({
+                    dailySheetId: dailySheetId,
                     name: expense.name.trim(),
                     amount: parseFloat(expense.amount),
                     date: date,
@@ -179,15 +171,12 @@ export async function saveDailySheet(data: any) {
             }
         }
 
-        // Sync credits to standalone credits table
-        // Note: We delete credits created on this date, then re-add them
-        await db.delete(credits).where(and(
-            gte(credits.createdAt, startOfDay),
-            lte(credits.createdAt, endOfDay)
-        ));
+        // Sync credits to standalone credits table (per pump via dailySheetId)
+        await db.delete(credits).where(eq(credits.dailySheetId, dailySheetId));
         if (validCreditSales.length > 0) {
             for (const credit of validCreditSales) {
                 await db.insert(credits).values({
+                    dailySheetId: dailySheetId,
                     name: credit.name.trim(),
                     amount: parseFloat(credit.amount),
                     status: 'pending', // Credits from daily entry start as pending

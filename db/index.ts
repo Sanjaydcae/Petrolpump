@@ -150,6 +150,7 @@ export async function runMigrations() {
         await c.execute(`
             CREATE TABLE IF NOT EXISTS credits (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                daily_sheet_id INTEGER REFERENCES daily_sheets(id),
                 name TEXT NOT NULL,
                 amount REAL NOT NULL,
                 status TEXT NOT NULL DEFAULT 'pending',
@@ -158,16 +159,31 @@ export async function runMigrations() {
             )
         `);
 
+        // Add daily_sheet_id column to credits if it doesn't exist (for existing tables)
+        try {
+            await c.execute(`ALTER TABLE credits ADD COLUMN daily_sheet_id INTEGER REFERENCES daily_sheets(id)`);
+        } catch (e) {
+            // Column already exists, ignore error
+        }
+
         // Create expenses table
         await c.execute(`
             CREATE TABLE IF NOT EXISTS expenses (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                daily_sheet_id INTEGER REFERENCES daily_sheets(id),
                 name TEXT NOT NULL,
                 amount REAL NOT NULL,
                 date INTEGER NOT NULL,
                 created_at INTEGER NOT NULL
             )
         `);
+
+        // Add daily_sheet_id column to expenses if it doesn't exist (for existing tables)
+        try {
+            await c.execute(`ALTER TABLE expenses ADD COLUMN daily_sheet_id INTEGER REFERENCES daily_sheets(id)`);
+        } catch (e) {
+            // Column already exists, ignore error
+        }
 
         // Create expense_sales table (linked to daily sheets)
         await c.execute(`
