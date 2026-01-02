@@ -153,9 +153,23 @@ export async function saveDailySheet(data: any) {
             }
         }
 
+        // Also insert credit sales into the standalone credits table (for Credit tab)
+        if (validCreditSales.length > 0) {
+            for (const credit of validCreditSales) {
+                await db.insert(credits).values({
+                    name: credit.name.trim(),
+                    amount: parseFloat(credit.amount),
+                    status: 'pending', // Credits from daily entry start as pending
+                    receivedDate: null,
+                    createdAt: new Date(),
+                });
+            }
+        }
+
         revalidatePath('/');
         revalidatePath('/report');
         revalidatePath('/expense');
+        revalidatePath('/credit');
         return { success: true, message: existing ? 'Daily sheet updated!' : 'Daily sheet saved!' };
     } catch (error) {
         console.error('Error saving daily sheet:', error);
