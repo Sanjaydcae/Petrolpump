@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCredits, updateCreditStatus, deleteCredit } from '@/app/actions';
+import { getCredits, updateCreditStatus } from '@/app/actions';
 
 type Credit = {
     id: number;
@@ -46,13 +46,6 @@ export default function CreditPage() {
         setEditingId(null);
         setEditDate('');
         loadCredits();
-    }
-
-    async function handleDelete(id: number) {
-        if (confirm('Are you sure you want to delete this credit?')) {
-            await deleteCredit(id);
-            loadCredits();
-        }
     }
 
     const totalCredits = credits.reduce((sum, c) => sum + c.amount, 0);
@@ -102,7 +95,6 @@ export default function CreditPage() {
                                     <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>AMOUNT</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>STATUS</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>RECEIVED DATE</th>
-                                    <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -154,22 +146,6 @@ export default function CreditPage() {
                                         </td>
                                         <td style={{ padding: '14px 16px', textAlign: 'center', color: credit.receivedDate ? '#2e7d32' : '#6c757d', fontWeight: credit.receivedDate ? '600' : '400' }}>
                                             {credit.receivedDate ? new Date(credit.receivedDate).toLocaleDateString('en-IN') : 'Not received'}
-                                        </td>
-                                        <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                                            <button
-                                                onClick={() => handleDelete(credit.id)}
-                                                style={{
-                                                    padding: '6px 12px',
-                                                    background: '#ffebee',
-                                                    color: '#d32f2f',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
                                         </td>
                                     </tr>
                                 ))}

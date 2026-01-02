@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getExpenses, deleteExpense } from '@/app/actions';
+import { getExpenses } from '@/app/actions';
 
 type Expense = {
     id: number;
@@ -28,13 +28,6 @@ export default function ExpensePage() {
         const data = await getExpenses();
         setExpenses(data as Expense[]);
         setIsLoading(false);
-    }
-
-    async function handleDelete(id: number) {
-        if (confirm('Are you sure you want to delete this expense?')) {
-            await deleteExpense(id);
-            loadExpenses();
-        }
     }
 
     // Filter expenses by selected month
@@ -126,7 +119,6 @@ export default function ExpensePage() {
                                     <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>DATE</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>NAME</th>
                                     <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>AMOUNT</th>
-                                    <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: '600', fontSize: '13px', color: '#6c757d' }}>ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -137,22 +129,6 @@ export default function ExpensePage() {
                                         </td>
                                         <td style={{ padding: '14px 16px', fontWeight: '500' }}>{expense.name}</td>
                                         <td style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#d32f2f' }}>₹{expense.amount.toLocaleString('en-IN')}</td>
-                                        <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                                            <button
-                                                onClick={() => handleDelete(expense.id)}
-                                                style={{
-                                                    padding: '6px 12px',
-                                                    background: '#ffebee',
-                                                    color: '#d32f2f',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
