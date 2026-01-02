@@ -109,9 +109,9 @@ export async function saveDailySheet(data: any) {
 
         // Insert credit sales (only valid entries with customer names)
         const validCreditSales = data.creditSales.filter((c: any) => c.name && c.name.trim() !== '' && parseFloat(c.amount) > 0);
-        // Only delete old credit records if we have new ones to insert
+        // ALWAYS delete old credit records for this sheet first
+        await db.delete(creditSales).where(eq(creditSales.dailySheetId, dailySheetId));
         if (validCreditSales.length > 0) {
-            await db.delete(creditSales).where(eq(creditSales.dailySheetId, dailySheetId));
             await db.insert(creditSales).values(
                 validCreditSales.map((c: any) => ({
                     dailySheetId,
@@ -125,9 +125,9 @@ export async function saveDailySheet(data: any) {
 
         // Insert oil & lube sales (only entries with quantity > 0)
         const validOilLubeSales = data.oilLubeSales.filter((o: any) => parseFloat(o.quantity) > 0);
-        // Only delete old oil/lube records if we have new ones to insert
+        // ALWAYS delete old oil/lube records for this sheet first
+        await db.delete(oilLubeSales).where(eq(oilLubeSales.dailySheetId, dailySheetId));
         if (validOilLubeSales.length > 0) {
-            await db.delete(oilLubeSales).where(eq(oilLubeSales.dailySheetId, dailySheetId));
             await db.insert(oilLubeSales).values(
                 validOilLubeSales.map((o: any) => ({
                     dailySheetId,
@@ -142,9 +142,9 @@ export async function saveDailySheet(data: any) {
 
         // Insert expense sales linked to daily sheet
         const validExpenseSales = data.expenseSales?.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0) || [];
+        // ALWAYS delete old expense records for this sheet first
+        await db.delete(expenseSales).where(eq(expenseSales.dailySheetId, dailySheetId));
         if (validExpenseSales.length > 0) {
-            // Delete old expense records for this sheet
-            await db.delete(expenseSales).where(eq(expenseSales.dailySheetId, dailySheetId));
             await db.insert(expenseSales).values(
                 validExpenseSales.map((e: any) => ({
                     dailySheetId,
