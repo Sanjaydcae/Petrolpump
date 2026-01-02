@@ -64,6 +64,11 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         { name: '', amount: '' },
         { name: '', amount: '' },
         { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
+        { name: '', amount: '' },
     ]);
 
     const [oilLubeProducts, setOilLubeProducts] = useState<OilLubeProduct[]>([
@@ -168,7 +173,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                 }
 
                 setCreditEntries(Array(5).fill(null).map(() => ({ name: '', amount: '' })));
-                setExpenseEntries(Array(5).fill(null).map(() => ({ name: '', amount: '' })));
+                setExpenseEntries(Array(10).fill(null).map(() => ({ name: '', amount: '' })));
                 setOilLubeProducts(prev => prev.map(p => ({ ...p, quantity: '', total: 0 })));
                 setPaytm(''); setCard(''); setFleatCard(''); setNightCash('');
             }
