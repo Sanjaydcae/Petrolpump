@@ -137,6 +137,11 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                         return found ? { ...p, quantity: found.quantity.toString(), total: found.total } : { ...p, quantity: '', total: 0 };
                     }));
                 }
+                if (data.expenseSales) {
+                    const loadedExpenses = data.expenseSales.map((e: any) => ({ name: e.name, amount: e.amount.toString() }));
+                    while (loadedExpenses.length < 10) loadedExpenses.push({ name: '', amount: '' });
+                    setExpenseEntries(loadedExpenses.slice(0, 10));
+                }
                 setPaytm(data.paytmAmount?.toString() || '');
                 setCard(data.cardAmount?.toString() || '');
                 setFleatCard(data.fleatCardAmount?.toString() || '');

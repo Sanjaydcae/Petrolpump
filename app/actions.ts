@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { sales, creditSales, oilLubeSales, dailySheets, users, tankReadings } from '@/db/schema';
+import { sales, creditSales, oilLubeSales, dailySheets, users, tankReadings, expenseSales } from '@/db/schema';
 import { desc, eq, and, gte, lte } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { hashPassword, verifyPassword, type AuthUser } from '@/lib/auth';
@@ -140,6 +140,21 @@ export async function saveDailySheet(data: any) {
             );
         }
 
+        // Insert expense sales linked to daily sheet
+        const validExpenseSales = data.expenseSales?.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0) || [];
+        if (validExpenseSales.length > 0) {
+            // Delete old expense records for this sheet
+            await db.delete(expenseSales).where(eq(expenseSales.dailySheetId, dailySheetId));
+            await db.insert(expenseSales).values(
+                validExpenseSales.map((e: any) => ({
+                    dailySheetId,
+                    date: date,
+                    name: e.name.trim(),
+                    amount: parseFloat(e.amount),
+                }))
+            );
+        }
+
         // Only add to standalone tables for NEW daily sheets (not updates) to prevent duplicates
         if (!existing) {
             // Insert expense sales into the standalone expenses table
@@ -268,12 +283,14 @@ export async function getDailySheetDetails(dailySheetId: number) {
         const nozzleSales = await db.select().from(sales).where(eq(sales.dailySheetId, dailySheetId));
         const credits = await db.select().from(creditSales).where(eq(creditSales.dailySheetId, dailySheetId));
         const oilLube = await db.select().from(oilLubeSales).where(eq(oilLubeSales.dailySheetId, dailySheetId));
+        const expensesList = await db.select().from(expenseSales).where(eq(expenseSales.dailySheetId, dailySheetId));
 
         return {
             ...sheet,
             nozzleSales,
             creditSales: credits,
             oilLubeSales: oilLube,
+            expenseSales: expensesList,
         };
     } catch (error) {
         console.error('Error fetching daily sheet details:', error);

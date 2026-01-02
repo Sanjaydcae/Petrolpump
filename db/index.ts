@@ -169,6 +169,17 @@ export async function runMigrations() {
             )
         `);
 
+        // Create expense_sales table (linked to daily sheets)
+        await c.execute(`
+            CREATE TABLE IF NOT EXISTS expense_sales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                daily_sheet_id INTEGER REFERENCES daily_sheets(id),
+                date INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                amount REAL NOT NULL
+            )
+        `);
+
         migrationsRun = true;
         console.log('Database migrations completed');
     } catch (error) {

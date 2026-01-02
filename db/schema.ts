@@ -90,13 +90,22 @@ export const credits = sqliteTable('credits', {
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
-// Expenses table (for monthly expense tracking)
+// Expenses table (for monthly expense tracking - standalone)
 export const expenses = sqliteTable('expenses', {
     id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
     amount: real('amount').notNull(),
     date: integer('date', { mode: 'timestamp_ms' }).notNull(),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+});
+
+// Expense sales linked to daily sheets (for form persistence)
+export const expenseSales = sqliteTable('expense_sales', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    dailySheetId: integer('daily_sheet_id').references(() => dailySheets.id),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
+    name: text('name').notNull(),
+    amount: real('amount').notNull(),
 });
 
 export type DailySheet = typeof dailySheets.$inferSelect;
@@ -115,3 +124,5 @@ export type Credit = typeof credits.$inferSelect;
 export type NewCredit = typeof credits.$inferInsert;
 export type Expense = typeof expenses.$inferSelect;
 export type NewExpense = typeof expenses.$inferInsert;
+export type ExpenseSale = typeof expenseSales.$inferSelect;
+export type NewExpenseSale = typeof expenseSales.$inferInsert;
