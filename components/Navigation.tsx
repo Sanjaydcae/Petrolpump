@@ -27,6 +27,8 @@ export default function Navigation() {
     const links = [
         { name: 'Dashboard', href: '/' },
         { name: 'Daily Entry', href: '/sale' },
+        { name: 'Credit', href: '/credit' },
+        { name: 'Expense', href: '/expense' },
         { name: 'Reports', href: '/report' },
         { name: 'Tank', href: '/tank' },
         { name: 'Settings', href: '/settings' },

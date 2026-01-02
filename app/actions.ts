@@ -604,3 +604,132 @@ export async function getDistinctCreditCustomers(): Promise<string[]> {
         return [];
     }
 }
+
+// ===== STANDALONE CREDITS MANAGEMENT =====
+
+import { credits, expenses } from '@/db/schema';
+
+// Add a new credit
+export async function addCredit(data: { name: string; amount: number; status: 'received' | 'pending'; receivedDate?: string }) {
+    try {
+        await db.insert(credits).values({
+            name: data.name.trim(),
+            amount: data.amount,
+            status: data.status,
+            receivedDate: data.receivedDate ? new Date(data.receivedDate) : null,
+            createdAt: new Date(),
+        });
+
+        revalidatePath('/credit');
+        return { success: true, message: 'Credit added successfully!' };
+    } catch (error) {
+        console.error('Error adding credit:', error);
+        return { success: false, error: 'Failed to add credit' };
+    }
+}
+
+// Get all credits
+export async function getCredits() {
+    try {
+        const allCredits = await db.select().from(credits).orderBy(desc(credits.createdAt));
+        return allCredits;
+    } catch (error) {
+        console.error('Error fetching credits:', error);
+        return [];
+    }
+}
+
+// Update credit status
+export async function updateCreditStatus(id: number, status: 'received' | 'pending', receivedDate?: string) {
+    try {
+        await db.update(credits).set({
+            status,
+            receivedDate: status === 'received' && receivedDate ? new Date(receivedDate) : null,
+        }).where(eq(credits.id, id));
+
+        revalidatePath('/credit');
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating credit status:', error);
+        return { success: false, error: 'Failed to update credit status' };
+    }
+}
+
+// Delete a credit
+export async function deleteCredit(id: number) {
+    try {
+        await db.delete(credits).where(eq(credits.id, id));
+
+        revalidatePath('/credit');
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting credit:', error);
+        return { success: false, error: 'Failed to delete credit' };
+    }
+}
+
+// ===== EXPENSES MANAGEMENT =====
+
+// Add a new expense
+export async function addExpense(data: { name: string; amount: number; date?: string }) {
+    try {
+        await db.insert(expenses).values({
+            name: data.name.trim(),
+            amount: data.amount,
+            date: data.date ? new Date(data.date) : new Date(),
+            createdAt: new Date(),
+        });
+
+        revalidatePath('/expense');
+        return { success: true, message: 'Expense added successfully!' };
+    } catch (error) {
+        console.error('Error adding expense:', error);
+        return { success: false, error: 'Failed to add expense' };
+    }
+}
+
+// Get all expenses
+export async function getExpenses() {
+    try {
+        const allExpenses = await db.select().from(expenses).orderBy(desc(expenses.date));
+        return allExpenses;
+    } catch (error) {
+        console.error('Error fetching expenses:', error);
+        return [];
+    }
+}
+
+// Get expenses for a specific month
+export async function getMonthlyExpenses(month: number, year: number) {
+    try {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+        const monthlyExpenses = await db.select().from(expenses)
+            .where(and(
+                gte(expenses.date, startDate),
+                lte(expenses.date, endDate)
+            ))
+            .orderBy(desc(expenses.date));
+
+        const total = monthlyExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+        return { expenses: monthlyExpenses, total };
+    } catch (error) {
+        console.error('Error fetching monthly expenses:', error);
+        return { expenses: [], total: 0 };
+    }
+}
+
+// Delete an expense
+export async function deleteExpense(id: number) {
+    try {
+        await db.delete(expenses).where(eq(expenses.id, id));
+
+        revalidatePath('/expense');
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting expense:', error);
+        return { success: false, error: 'Failed to delete expense' };
+    }
+}

@@ -80,6 +80,25 @@ export const tankReadings = sqliteTable('tank_readings', {
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
+// Credits table (standalone, separate from daily sales)
+export const credits = sqliteTable('credits', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    amount: real('amount').notNull(),
+    status: text('status').notNull().default('pending'), // 'received' or 'pending'
+    receivedDate: integer('received_date', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+});
+
+// Expenses table (for monthly expense tracking)
+export const expenses = sqliteTable('expenses', {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    amount: real('amount').notNull(),
+    date: integer('date', { mode: 'timestamp_ms' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+});
+
 export type DailySheet = typeof dailySheets.$inferSelect;
 export type NewDailySheet = typeof dailySheets.$inferInsert;
 export type Sale = typeof sales.$inferSelect;
@@ -92,4 +111,7 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type TankReading = typeof tankReadings.$inferSelect;
 export type NewTankReading = typeof tankReadings.$inferInsert;
-
+export type Credit = typeof credits.$inferSelect;
+export type NewCredit = typeof credits.$inferInsert;
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;

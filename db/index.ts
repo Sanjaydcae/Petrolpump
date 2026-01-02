@@ -146,6 +146,29 @@ export async function runMigrations() {
             // Column already exists, ignore error
         }
 
+        // Create credits table
+        await c.execute(`
+            CREATE TABLE IF NOT EXISTS credits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                amount REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                received_date INTEGER,
+                created_at INTEGER NOT NULL
+            )
+        `);
+
+        // Create expenses table
+        await c.execute(`
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                amount REAL NOT NULL,
+                date INTEGER NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+        `);
+
         migrationsRun = true;
         console.log('Database migrations completed');
     } catch (error) {
