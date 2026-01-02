@@ -140,8 +140,22 @@ export async function saveDailySheet(data: any) {
             );
         }
 
+        // Insert expense sales into the standalone expenses table
+        if (data.expenseSales && data.expenseSales.length > 0) {
+            const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
+            for (const expense of validExpenses) {
+                await db.insert(expenses).values({
+                    name: expense.name.trim(),
+                    amount: parseFloat(expense.amount),
+                    date: date,
+                    createdAt: new Date(),
+                });
+            }
+        }
+
         revalidatePath('/');
         revalidatePath('/report');
+        revalidatePath('/expense');
         return { success: true, message: existing ? 'Daily sheet updated!' : 'Daily sheet saved!' };
     } catch (error) {
         console.error('Error saving daily sheet:', error);

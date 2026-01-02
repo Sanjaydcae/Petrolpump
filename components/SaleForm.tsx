@@ -19,6 +19,11 @@ type CreditEntry = {
     amount: string;
 };
 
+type ExpenseEntry = {
+    name: string;
+    amount: string;
+};
+
 type OilLubeProduct = {
     name: string;
     size: string;
@@ -51,6 +56,9 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         { name: '', amount: '' },
         { name: '', amount: '' },
         { name: '', amount: '' },
+    ]);
+
+    const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([
         { name: '', amount: '' },
         { name: '', amount: '' },
         { name: '', amount: '' },
@@ -115,8 +123,8 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                 }
                 if (data.creditSales) {
                     const loadedCredits = data.creditSales.map((c: any) => ({ name: c.customerName, amount: c.amount.toString() }));
-                    while (loadedCredits.length < 10) loadedCredits.push({ name: '', amount: '' });
-                    setCreditEntries(loadedCredits);
+                    while (loadedCredits.length < 5) loadedCredits.push({ name: '', amount: '' });
+                    setCreditEntries(loadedCredits.slice(0, 5));
                 }
                 if (data.oilLubeSales) {
                     setOilLubeProducts(prev => prev.map(p => {
@@ -159,7 +167,8 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                     setNozzles(prev => prev.map(n => ({ ...n, openReading: '', closeReading: '', testing: '', totalSale: 0, totalAmount: 0 })));
                 }
 
-                setCreditEntries(Array(10).fill(null).map(() => ({ name: '', amount: '' })));
+                setCreditEntries(Array(5).fill(null).map(() => ({ name: '', amount: '' })));
+                setExpenseEntries(Array(5).fill(null).map(() => ({ name: '', amount: '' })));
                 setOilLubeProducts(prev => prev.map(p => ({ ...p, quantity: '', total: 0 })));
                 setPaytm(''); setCard(''); setFleatCard(''); setNightCash('');
             }
@@ -235,6 +244,12 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
         setOilLubeProducts(updated);
     };
 
+    const updateExpenseEntry = (index: number, field: keyof ExpenseEntry, value: string) => {
+        const updated = [...expenseEntries];
+        updated[index] = { ...updated[index], [field]: value };
+        setExpenseEntries(updated);
+    };
+
     // Calculate petrol and diesel totals
     const petrolNozzles = nozzles.filter(n => n.product === 'Petrol');
     const dieselNozzles = nozzles.filter(n => n.product === 'Diesel');
@@ -246,6 +261,7 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
 
     const totalNozzleSales = nozzles.reduce((sum, n) => sum + n.totalAmount, 0);
     const totalCreditSales = creditEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+    const totalExpenses = expenseEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
     const totalOilLube = oilLubeProducts.reduce((sum, p) => sum + p.total, 0);
     const totalCardPaytm = (parseFloat(paytm) || 0) + (parseFloat(card) || 0) + (parseFloat(fleatCard) || 0);
     const totalNightCash = parseFloat(nightCash) || 0;
@@ -262,8 +278,9 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
             nozzles: nozzles.filter(n => n.openReading && n.closeReading),
             creditSales: creditEntries.filter(e => e.name && e.amount),
             oilLubeSales: oilLubeProducts.filter(p => parseFloat(p.quantity) > 0),
+            expenseSales: expenseEntries.filter(e => e.name && e.amount),
             paymentMethods: { paytm: parseFloat(paytm) || 0, card: parseFloat(card) || 0, fleatCard: parseFloat(fleatCard) || 0, credit: totalCreditSales, nightCash: totalNightCash },
-            totals: { totalNozzleSales, totalCreditSales, totalOilLube, totalToBank }
+            totals: { totalNozzleSales, totalCreditSales, totalOilLube, totalExpenses, totalToBank }
         };
         const result = await saveDailySheet(dailySheetData);
         setIsPending(false);
@@ -434,6 +451,36 @@ export default function SaleForm({ pumpId = 1 }: { pumpId?: number }) {
                                                 )}
                                             </div>
                                             <input type="number" value={entry.amount} onChange={(e) => updateCreditEntry(idx, 'amount', e.target.value)} className="pos-input" placeholder="₹0" style={{ width: '100px', textAlign: 'right' }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* EXPENSES */}
+                            <div className="pos-section">
+                                <div className="pos-section-header">
+                                    Expenses
+                                    <span style={{ float: 'right', fontWeight: '700', color: '#ff5722' }}>₹{totalExpenses.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div style={{ padding: '12px' }}>
+                                    {expenseEntries.map((entry, idx) => (
+                                        <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                            <input
+                                                type="text"
+                                                value={entry.name}
+                                                onChange={(e) => updateExpenseEntry(idx, 'name', e.target.value)}
+                                                className="pos-input"
+                                                placeholder="Expense Name"
+                                                style={{ flex: 1 }}
+                                            />
+                                            <input
+                                                type="number"
+                                                value={entry.amount}
+                                                onChange={(e) => updateExpenseEntry(idx, 'amount', e.target.value)}
+                                                className="pos-input"
+                                                placeholder="₹0"
+                                                style={{ width: '100px', textAlign: 'right' }}
+                                            />
                                         </div>
                                     ))}
                                 </div>
