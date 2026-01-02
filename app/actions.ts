@@ -155,32 +155,45 @@ export async function saveDailySheet(data: any) {
             );
         }
 
-        // Only add to standalone tables for NEW daily sheets (not updates) to prevent duplicates
-        if (!existing) {
-            // Insert expense sales into the standalone expenses table
-            if (data.expenseSales && data.expenseSales.length > 0) {
-                const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
-                for (const expense of validExpenses) {
-                    await db.insert(expenses).values({
-                        name: expense.name.trim(),
-                        amount: parseFloat(expense.amount),
-                        date: date,
-                        createdAt: new Date(),
-                    });
-                }
-            }
+        // Always sync to standalone tables (delete old entries for this date first to prevent duplicates)
+        // Delete existing entries for this date from standalone tables
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
 
-            // Also insert credit sales into the standalone credits table (for Credit tab)
-            if (validCreditSales.length > 0) {
-                for (const credit of validCreditSales) {
-                    await db.insert(credits).values({
-                        name: credit.name.trim(),
-                        amount: parseFloat(credit.amount),
-                        status: 'pending', // Credits from daily entry start as pending
-                        receivedDate: null,
-                        createdAt: new Date(),
-                    });
-                }
+        // Sync expenses to standalone expenses table
+        await db.delete(expenses).where(and(
+            gte(expenses.date, startOfDay),
+            lte(expenses.date, endOfDay)
+        ));
+        if (data.expenseSales && data.expenseSales.length > 0) {
+            const validExpenses = data.expenseSales.filter((e: any) => e.name && e.name.trim() !== '' && parseFloat(e.amount) > 0);
+            for (const expense of validExpenses) {
+                await db.insert(expenses).values({
+                    name: expense.name.trim(),
+                    amount: parseFloat(expense.amount),
+                    date: date,
+                    createdAt: new Date(),
+                });
+            }
+        }
+
+        // Sync credits to standalone credits table
+        // Note: We delete credits created on this date, then re-add them
+        await db.delete(credits).where(and(
+            gte(credits.createdAt, startOfDay),
+            lte(credits.createdAt, endOfDay)
+        ));
+        if (validCreditSales.length > 0) {
+            for (const credit of validCreditSales) {
+                await db.insert(credits).values({
+                    name: credit.name.trim(),
+                    amount: parseFloat(credit.amount),
+                    status: 'pending', // Credits from daily entry start as pending
+                    receivedDate: null,
+                    createdAt: date, // Use the daily sheet date
+                });
             }
         }
 
