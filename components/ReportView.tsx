@@ -247,7 +247,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                             ₹{row.totalCredit.toLocaleString('en-IN')}
                                         </td>
                                         <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff5722' }}>
-                                            ₹{row.totalExpense.toLocaleString('en-IN')}
+                                            ₹{(row.totalExpense || 0).toLocaleString('en-IN')}
                                         </td>
                                         <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800' }}>
                                             ₹{row.totalNightCash.toLocaleString('en-IN')}
