@@ -59,6 +59,7 @@ export async function runMigrations() {
                 total_nozzle_sales REAL NOT NULL DEFAULT 0,
                 total_credit_sales REAL NOT NULL DEFAULT 0,
                 total_oil_lube REAL NOT NULL DEFAULT 0,
+                total_expenses REAL NOT NULL DEFAULT 0,
                 paytm_amount REAL NOT NULL DEFAULT 0,
                 card_amount REAL NOT NULL DEFAULT 0,
                 fleat_card_amount REAL NOT NULL DEFAULT 0,
@@ -70,6 +71,13 @@ export async function runMigrations() {
                 approved_at INTEGER
             )
         `);
+
+        // Add total_expenses column if it doesn't exist (for existing tables)
+        try {
+            await c.execute(`ALTER TABLE daily_sheets ADD COLUMN total_expenses REAL NOT NULL DEFAULT 0`);
+        } catch (e) {
+            // Column already exists, ignore error
+        }
 
         // Create sales table
         await c.execute(`

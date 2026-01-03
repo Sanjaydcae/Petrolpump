@@ -10,6 +10,7 @@ export const dailySheets = sqliteTable('daily_sheets', {
     totalNozzleSales: real('total_nozzle_sales').notNull().default(0),
     totalCreditSales: real('total_credit_sales').notNull().default(0),
     totalOilLube: real('total_oil_lube').notNull().default(0),
+    totalExpenses: real('total_expenses').notNull().default(0),
     paytmAmount: real('paytm_amount').notNull().default(0),
     cardAmount: real('card_amount').notNull().default(0),
     fleatCardAmount: real('fleat_card_amount').notNull().default(0),

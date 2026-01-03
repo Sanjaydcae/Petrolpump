@@ -14,6 +14,7 @@ type DailySheet = {
     totalNozzleSales: number;
     totalCreditSales: number;
     totalOilLube: number;
+    totalExpenses: number;
     paytmAmount: number;
     cardAmount: number;
     fleatCardAmount: number;
@@ -31,6 +32,7 @@ type CumulativeDailyData = {
     totalPumpSale: number;
     totalPaytmCard: number;
     totalCredit: number;
+    totalExpense: number;
     totalNightCash: number;
     totalToBank: number;
     totalOilLube: number;
@@ -66,6 +68,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                     totalPumpSale: 0,
                     totalPaytmCard: 0,
                     totalCredit: 0,
+                    totalExpense: 0,
                     totalNightCash: 0,
                     totalToBank: 0,
                     totalOilLube: 0,
@@ -83,6 +86,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
             grouped[dateStr].totalPumpSale += sheet.totalNozzleSales || 0;
             grouped[dateStr].totalPaytmCard += (sheet.paytmAmount || 0) + (sheet.cardAmount || 0) + (sheet.fleatCardAmount || 0);
             grouped[dateStr].totalCredit += sheet.totalCreditSales || 0;
+            grouped[dateStr].totalExpense += sheet.totalExpenses || 0;
             grouped[dateStr].totalNightCash += sheet.nightCashAmount || 0;
             grouped[dateStr].totalToBank += sheet.totalToBank || 0;
             grouped[dateStr].totalOilLube += sheet.totalOilLube || 0;
@@ -178,6 +182,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                     <th style={{ textAlign: 'right' }}>Pump Sale</th>
                                     <th style={{ textAlign: 'right' }}>Paytm & Card</th>
                                     <th style={{ textAlign: 'right' }}>Credit</th>
+                                    <th style={{ textAlign: 'right' }}>Expense</th>
                                     <th style={{ textAlign: 'right' }}>Night Cash</th>
                                     <th style={{ textAlign: 'right' }}>To Bank</th>
                                     <th style={{ textAlign: 'center' }}>Actions</th>
@@ -241,6 +246,9 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                         <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#d32f2f' }}>
                                             ₹{row.totalCredit.toLocaleString('en-IN')}
                                         </td>
+                                        <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff5722' }}>
+                                            ₹{row.totalExpense.toLocaleString('en-IN')}
+                                        </td>
                                         <td style={{ textAlign: 'right', fontFamily: 'Consolas, Monaco, monospace', fontWeight: '600', color: '#ff9800' }}>
                                             ₹{row.totalNightCash.toLocaleString('en-IN')}
                                         </td>
@@ -292,7 +300,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                 ))}
                                 {cumulativeData.length === 0 && (
                                     <tr>
-                                        <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>
+                                        <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: '#adb5bd', fontStyle: 'italic' }}>
                                             No daily sheets found.
                                         </td>
                                     </tr>
@@ -307,7 +315,7 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                 padding: '16px 20px',
                                 borderTop: '2px solid #dee2e6',
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(5, 1fr)',
+                                gridTemplateColumns: 'repeat(6, 1fr)',
                                 gap: '20px'
                             }}>
                                 <div>
@@ -326,6 +334,12 @@ export default function ReportView({ dailySheets }: { dailySheets: DailySheet[] 
                                     <div style={{ fontSize: '11px', color: '#6c757d', textTransform: 'uppercase', marginBottom: '4px' }}>Total Credit</div>
                                     <div style={{ fontSize: '16px', fontWeight: '700', fontFamily: 'Consolas, Monaco, monospace', color: '#d32f2f' }}>
                                         ₹{cumulativeData.reduce((sum, r) => sum + r.totalCredit, 0).toLocaleString('en-IN')}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '11px', color: '#6c757d', textTransform: 'uppercase', marginBottom: '4px' }}>Total Expense</div>
+                                    <div style={{ fontSize: '16px', fontWeight: '700', fontFamily: 'Consolas, Monaco, monospace', color: '#ff5722' }}>
+                                        ₹{cumulativeData.reduce((sum, r) => sum + r.totalExpense, 0).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div>
